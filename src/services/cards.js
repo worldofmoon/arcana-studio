@@ -211,7 +211,7 @@ export function createService(runtime) {
       request = ++runtime.state.importVersion;
     runtime.state.importLoading = true;
     ++runtime.state.projectRestoreVersion;
-    runtime.state.activeProjectId = null;
+    if (!runtime.state.collection) runtime.state.activeProjectId = null;
     runtime.state.selectedCard = card;
     runtime.state.faceIndex = index;
     for (const button of runtime.view.get("results").children)

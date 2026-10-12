@@ -9,6 +9,10 @@ export function initializeState(runtime) {
   );
   runtime.state.symbols = new Map();
   runtime.state.symbolData = runtime.assets.symbols;
+  runtime.state.collection = null;
+  runtime.state.collectionBusy = false;
+  runtime.state.collectionOpenVersion = 0;
+  runtime.state.collectionTimer = null;
   runtime.state.activeTab = "card";
   runtime.state.lastText = "rules";
   runtime.state.selectedCard = null;

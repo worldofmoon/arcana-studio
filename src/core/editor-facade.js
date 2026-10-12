@@ -52,10 +52,10 @@ export class EditorFacade {
     return this.invoke("importCard", card, face);
   }
   openProject(project) {
-    return this.invoke("restoreProject", project);
+    return this.runtime.services.collection.open(project);
   }
   getProject() {
-    return this.invoke("snapshot");
+    return this.runtime.services.collection.snapshot();
   }
   render() {
     return this.invoke("render");

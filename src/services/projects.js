@@ -22,7 +22,7 @@ export function createService(runtime) {
       await new Promise((resolve, reject) => {
         const tx = db.transaction("projects", "readwrite");
         tx.objectStore("projects").put(
-          runtime.services.projects.snapshot(),
+          runtime.services.collection.snapshot(),
           "draft",
         );
         tx.oncomplete = resolve;

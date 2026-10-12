@@ -79,7 +79,14 @@ export function createService(runtime) {
         (folder === "all" || (r.folderId || "") === folder) &&
         (!term ||
           runtime.services.library
-            .libraryKey(r.name + " " + (r.project.values.name || ""))
+            .libraryKey(
+              r.name +
+                " " +
+                runtime.services.collection
+                  .cardsOf(r.project)
+                  .map((c) => c.project.values.name || "")
+                  .join(" "),
+            )
             .includes(term)),
     );
   }
@@ -139,8 +146,7 @@ export function createService(runtime) {
       open.textContent = "Abrir";
       open.onclick = async () => {
         try {
-          if (!(await runtime.services.projects.restoreProject(record.project)))
-            return;
+          if (!(await runtime.services.collection.open(record.project))) return;
           runtime.state.activeProjectId = record.id;
           runtime.view.get("libraryDialog").close();
           runtime.services.editor.message("Projeto aberto: " + record.name);
@@ -506,7 +512,7 @@ export function createService(runtime) {
       if (!(await runtime.state.fontsReady))
         throw new Error("Aguarde as fontes carregarem.");
       await runtime.services.bindings.ensureFrameAsset();
-      const project = await runtime.services.projects.portableSnapshot(),
+      const project = await runtime.services.collection.portable(),
         name = (
           runtime.view.get("libraryName").value.trim() ||
           runtime.view.get("name").value ||

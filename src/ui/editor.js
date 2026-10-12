@@ -169,6 +169,7 @@ export function createService(runtime) {
   function exportBusy() {
     return (
       runtime.state.batchRendering ||
+      runtime.state.collectionBusy ||
       runtime.state.editorLocks > 0 ||
       runtime.state.importLoading ||
       runtime.state.pendingMediaLoads.size > 0 ||
@@ -248,6 +249,19 @@ export function createService(runtime) {
 
   function changedCore() {
     runtime.state.dirty = true;
+    if (
+      runtime.state.collection &&
+      !runtime.state.batchRendering &&
+      !runtime.state.collectionBusy &&
+      !runtime.state.editorLocks
+    ) {
+      runtime.platform.clearTimeout(runtime.state.collectionTimer);
+      runtime.state.collectionTimer = runtime.platform.setTimeout(() => {
+        runtime.services.collection.capture();
+        runtime.services.collection.render();
+      }, 400);
+    }
+
     runtime.services.history.scheduleHistory();
     runtime.services.bindings.ensureFrameAsset().catch(() => {});
     runtime.services.bindings.updateFrameSelection();

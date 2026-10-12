@@ -760,3 +760,61 @@ dialog canvas {
     border-bottom: 3px solid #dab6ff;
   }
 }
+
+.collection-panel {
+  margin: 0 0 20px;
+  padding: 16px;
+  border: 1px solid #45364f;
+  border-radius: 16px;
+  background: #191622;
+}
+.collection-panel > summary {
+  font-weight: 700;
+}
+.collection-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.collection-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px 0 14px;
+  max-height: 250px;
+}
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 110px;
+  padding: 8px;
+  min-width: 0;
+}
+.collection-card img {
+  width: 70px;
+  height: 98px;
+  object-fit: contain;
+}
+.collection-card span {
+  width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+.collection-card small {
+  color: #c8b8d8;
+}
+.collection-card[aria-pressed="true"] {
+  border-color: #dab6ff;
+  background: #40314f;
+}
+@media (max-width: 780px) {
+  .collection-card {
+    flex-basis: 96px;
+  }
+  .collection-panel {
+    padding: 12px;
+  }
+}

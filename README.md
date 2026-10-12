@@ -38,6 +38,14 @@ Veja [a documentação da arquitetura](docs/ARCHITECTURE.md), baseada nos padrõ
 
 Os formatos de projeto `arcana-studio` v2, backup `arcana-library` v1 e o banco IndexedDB `arcana-studio`/`projects` v1 permanecem compatíveis.
 
+## Projetos com várias cartas
+
+Abra **Cartas deste projeto** para adicionar ou duplicar cartas e escolher a carta que deseja editar. Cada carta mantém seus próprios campos, imagens e histórico de edição. Também é possível renomear, ordenar, excluir e definir quantidades para impressão. O projeto mantém pelo menos uma carta e aceita até 100 cartas.
+
+O verso pode ser compartilhado com todas as cartas; a moldura e as cores podem ser aplicadas ao conjunto. Em **Finalizar**, baixe um projeto completo, prepare um PDF com as quantidades de cada carta ou baixe um ZIP com um PNG por carta no lado escolhido. PNGs continuam medindo 69 × 94 mm, incluindo a margem branca de 3 mm.
+
+Conjuntos usam `arcana-project` v1 e contêm snapshots `arcana-studio` v2. Arquivos antigos continuam abrindo como uma carta. Autosave, biblioteca local e backups preservam o conjunto inteiro. Projetos baixados incluem as imagens remotas convertidas para dados locais; o limite de arquivo continua em 60 MB e o ZIP em 200 MB.
+
 ## Testes e publicação
 
 `npm run check` verifica a sintaxe, imports, referências do HTML e arquivos das molduras. `npm test` executa testes de padrões e regressão com DOM simulado e canvas nativo: importação, faces, camadas, fontes, histórico, biblioteca, backups, PNG/PDF e concorrência.

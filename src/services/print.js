@@ -316,7 +316,13 @@ export function createService(runtime) {
         "Aguarde o carregamento terminar antes de imprimir.";
       return;
     }
-    await runtime.services.printing.exportPrintPDFCore();
+    runtime.services.collection.capture();
+    runtime.services.editor.lockEditor();
+    try {
+      await runtime.services.printing.exportPrintPDFCore();
+    } finally {
+      runtime.services.editor.unlockEditor();
+    }
     runtime.services.editor.updateExportState();
   };
 
@@ -327,7 +333,7 @@ export function createService(runtime) {
       queue.push({
         id: "current",
         name: runtime.view.get("name").value || "Carta atual",
-        project: await runtime.services.projects.portableSnapshot(),
+        project: await runtime.services.collection.portable(),
         copies: runtime.services.printing.copiesValue(
           runtime.view.get("currentCopies"),
         ),
@@ -340,6 +346,16 @@ export function createService(runtime) {
           project: item.record.project,
           copies: runtime.services.printing.copiesValue(item.copies),
         });
+    const expanded = queue.flatMap((item) =>
+      runtime.services.collection.cardsOf(item.project).map((card) => ({
+        ...item,
+        id: item.id + ":" + card.id,
+        name: card.label || card.project.values.name || item.name,
+        project: card.project,
+        copies: item.copies * (card.copies || 1),
+      })),
+    );
+    queue.splice(0, queue.length, ...expanded);
     if (!queue.length) {
       runtime.view.get("pdfStatus").textContent =
         "Selecione ao menos uma carta.";

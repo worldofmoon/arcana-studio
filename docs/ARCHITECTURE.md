@@ -56,3 +56,11 @@ O formato de projeto e o nome/versão do banco foram preservados, portanto não 
 As fixtures adaptam o acesso legado dos testes para serviços e estado por instância, sem expor esse mecanismo na página. Os arquivos temporários das verificações ficam em `.test-output/`, ignorado pelo Git.
 
 Limite atual: não foi executada uma sessão em Safari/iPhone real nesta refatoração. A compatibilidade funcional foi verificada com DOM simulado, canvas nativo, contratos de módulos e publicação dos recursos HTTP.
+
+## Coleções de cartas
+
+`services/collection.js` coordena o conjunto ativo, preserva a carta atual antes de trocar, mantém históricos independentes durante a sessão e reutiliza o serviço de projetos para restaurar cada snapshot. `ui/collection-view.js` apresenta a lista de miniaturas. A entrada pública `EditorFacade.openProject/getProject` aceita tanto uma carta legada como um conjunto.
+
+O formato `arcana-project` v1 contém nome, carta ativa, verso compartilhado e cartas com identificador, nome opcional, quantidade, miniatura e snapshot `arcana-studio` v2. A validação verifica todas as cartas antes de modificar o editor. O histórico permanece um recurso de edição da carta durante a sessão; não é serializado no arquivo do conjunto.
+
+Autosave e biblioteca usam snapshots do conjunto. PDF expande conjuntos em cartas e multiplica as quantidades; o ZIP reúne um PNG por carta com nomes únicos e restaura o editor ao terminar ou falhar. `domain/zip.js` implementa arquivos ZIP sem compressão, com CRC-32 e nomes UTF-8, evitando dependências adicionais.

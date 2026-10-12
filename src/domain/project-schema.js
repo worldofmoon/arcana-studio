@@ -4,6 +4,50 @@ export function createService(runtime) {
   }
 
   function validateBackupProject(p) {
+    if (p?.format === "arcana-project") {
+      if (
+        p.version !== 1 ||
+        typeof p.name !== "string" ||
+        !p.name.trim() ||
+        p.name.length > 160 ||
+        typeof p.sharedBack !== "boolean" ||
+        !Array.isArray(p.cards) ||
+        !p.cards.length ||
+        p.cards.length > 100
+      )
+        throw new Error("Projeto com várias cartas inválido.");
+      const ids = new Set();
+      for (const card of p.cards) {
+        if (
+          !runtime.services.schema.backupObject(card) ||
+          typeof card.id !== "string" ||
+          !card.id ||
+          card.id.length > 80 ||
+          ids.has(card.id) ||
+          typeof card.label !== "string" ||
+          card.label.length > 160 ||
+          !Number.isInteger(card.copies) ||
+          card.copies < 1 ||
+          card.copies > 30 ||
+          card.project?.format !== "arcana-studio"
+        )
+          throw new Error("Há uma carta inválida no projeto.");
+        ids.add(card.id);
+        runtime.services.schema.validateBackupProject(card.project);
+        if (
+          card.thumbnail !== undefined &&
+          (typeof card.thumbnail !== "string" ||
+            card.thumbnail.length > 2000000 ||
+            (card.thumbnail &&
+              !/^data:image\/(png|jpeg|webp);base64,/.test(card.thumbnail)))
+        )
+          throw new Error("Miniatura inválida no projeto.");
+      }
+      if (!ids.has(p.activeId))
+        throw new Error("Carta ativa inválida no projeto.");
+      return p;
+    }
+
     if (
       !runtime.services.schema.backupObject(p) ||
       p.format !== "arcana-studio" ||

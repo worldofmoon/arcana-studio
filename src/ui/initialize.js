@@ -63,7 +63,7 @@ export function initializeControllers(runtime) {
         fonts: {},
       });
       if (!restored) return;
-      runtime.state.activeProjectId = null;
+      if (!runtime.state.collection) runtime.state.activeProjectId = null;
       runtime.services.editor.changed();
       runtime.services.editor.tab("frame");
       runtime.services.editor.message(
@@ -73,6 +73,34 @@ export function initializeControllers(runtime) {
       runtime.services.editor.message(error.message, true);
     }
   };
+  const collection = runtime.services.collection;
+  const bindCollection = (id, action) => {
+    runtime.view.get(id).onclick = () => collection.handle(action);
+  };
+  bindCollection("collectionAdd", () => collection.add());
+  bindCollection("collectionDuplicate", () => collection.add(true));
+  bindCollection("collectionDelete", () => collection.remove());
+  bindCollection("collectionEarlier", () => collection.move(-1));
+  bindCollection("collectionLater", () => collection.move(1));
+  bindCollection("collectionFrame", () => collection.applyFrame());
+  bindCollection("collectionZip", () => collection.exportPngs());
+  runtime.view.get("collectionName").onchange = () =>
+    collection.handle(() =>
+      collection.renameProject(runtime.view.get("collectionName").value),
+    );
+  runtime.view.get("collectionLabel").onchange = () =>
+    collection.handle(() =>
+      collection.renameCard(runtime.view.get("collectionLabel").value),
+    );
+  runtime.view.get("collectionCopies").onchange = () =>
+    collection.handle(() =>
+      collection.copies(runtime.view.get("collectionCopies").value),
+    );
+  runtime.view.get("collectionSharedBack").onchange = () =>
+    collection.handle(() =>
+      collection.toggleBack(runtime.view.get("collectionSharedBack").checked),
+    );
+  collection.render();
   runtime.services.editor.tab("card");
   for (const id of runtime.config.fields) {
     runtime.view
@@ -205,11 +233,7 @@ export function initializeControllers(runtime) {
       const file = e.target.files?.[0];
       if (!file) return;
       if (file.size > 60000000) throw new Error("Projeto muito grande.");
-      if (
-        await runtime.services.projects.restoreProject(
-          JSON.parse(await file.text()),
-        )
-      )
+      if (await runtime.services.collection.open(JSON.parse(await file.text())))
         runtime.state.activeProjectId = null;
     } catch (e) {
       runtime.services.editor.message(e.message, true);

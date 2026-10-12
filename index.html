@@ -46,6 +46,75 @@
         <span>Há um projeto salvo neste navegador.</span
         ><button id="restoreDraft">Restaurar</button>
       </div>
+      <details class="collection-panel">
+        <summary>
+          Cartas deste projeto · <span id="collectionCount">1 carta</span>
+        </summary>
+        <p class="hint">
+          Organize um deck ou coleção. Cada carta mantém sua própria arte,
+          textos e moldura. As alterações ficam guardadas ao trocar de carta;
+          salve o conjunto na biblioteca ou baixe o projeto para manter uma
+          cópia.
+        </p>
+        <label for="collectionName">Nome do projeto</label
+        ><input
+          id="collectionName"
+          type="text"
+          value="Meu projeto"
+          maxlength="160"
+        />
+        <div class="collection-actions">
+          <button id="collectionAdd" type="button" class="primary">
+            + Adicionar carta</button
+          ><button id="collectionDuplicate" type="button">
+            Duplicar carta atual
+          </button>
+        </div>
+        <div
+          id="collectionList"
+          class="collection-list"
+          role="group"
+          aria-label="Cartas do projeto"
+        ></div>
+        <details>
+          <summary>Organizar carta atual</summary>
+          <label for="collectionLabel">Nome na lista (opcional)</label
+          ><input
+            id="collectionLabel"
+            type="text"
+            maxlength="160"
+            placeholder="Usar nome da carta"
+          />
+          <label for="collectionCopies">Quantidade para impressão</label
+          ><input
+            id="collectionCopies"
+            type="number"
+            min="1"
+            max="30"
+            value="1"
+          />
+          <div class="collection-actions">
+            <button id="collectionEarlier" type="button">← Mover antes</button
+            ><button id="collectionLater" type="button">Mover depois →</button
+            ><button id="collectionDelete" type="button">Excluir carta</button>
+          </div>
+        </details>
+        <details>
+          <summary>Aplicar a todas as cartas</summary>
+          <label
+            ><input id="collectionSharedBack" type="checkbox" /> Compartilhar o
+            verso da carta atual</label
+          >
+          <p class="hint">
+            Quando ativado, a imagem e o enquadramento do verso são iguais em
+            todas as cartas, inclusive nas novas. Ao desativar, cada carta
+            mantém o verso atual e pode ser editada separadamente.
+          </p>
+          <button id="collectionFrame" type="button">
+            Aplicar moldura e cores a todas
+          </button>
+        </details>
+      </details>
       <main class="editor">
         <aside class="preview">
           <div class="preview-head">
@@ -1016,6 +1085,13 @@
                   Organize cartas, cópias e frente e verso em folhas A4 ou
                   Letter.
                 </p>
+                <button id="collectionZip" type="button">
+                  Baixar todas as cartas em PNG (ZIP)
+                </button>
+                <p class="hint">
+                  Um PNG por carta, no lado escolhido acima, com margem branca
+                  de 3 mm. As quantidades de cópias são usadas no PDF.
+                </p>
                 <button id="finishProject" type="button">
                   Baixar projeto editável
                 </button>
@@ -1202,18 +1278,22 @@
       >
       <div class="print-row">
         <label style="margin: 0"
-          ><input id="includeCurrent" type="checkbox" checked /> Incluir carta
+          ><input id="includeCurrent" type="checkbox" checked /> Incluir projeto
           atual</label
-        ><label for="currentCopies" class="copies-label">Cópias</label
+        ><label for="currentCopies" class="copies-label">Repetições</label
         ><input
           id="currentCopies"
           type="number"
           min="1"
           max="30"
           value="1"
-          aria-label="Cópias da carta atual"
+          aria-label="Repetições do projeto atual"
         />
       </div>
+      <p class="hint">
+        Cada repetição inclui todas as cartas do projeto, respeitando as
+        quantidades definidas em Organizar carta atual.
+      </p>
       <h3>Projetos da biblioteca</h3>
       <div id="printList"></div>
       <p id="pdfStatus" class="status" aria-live="polite">

@@ -134,8 +134,8 @@ export function createService(runtime) {
           "Aguarde o carregamento terminar antes de baixar o projeto.",
         );
       runtime.services.projects.downloadProject(
-        await runtime.services.projects.portableSnapshot(),
-        runtime.services.projects.safeName() + ".arcana.json",
+        await runtime.services.collection.portable(),
+        runtime.services.collection.safeName() + ".arcana.json",
       );
       runtime.services.editor.message(
         "Projeto baixado com as imagens e fontes.",
@@ -152,11 +152,7 @@ export function createService(runtime) {
 
   const restoreDraftHandler = async () => {
     try {
-      if (
-        await runtime.services.projects.restoreProject(
-          runtime.state.availableDraft,
-        )
-      )
+      if (await runtime.services.collection.open(runtime.state.availableDraft))
         runtime.state.activeProjectId = null;
     } catch (e) {
       runtime.services.editor.message(e.message, true);
@@ -199,7 +195,7 @@ export function createService(runtime) {
         (r) => r.id === runtime.state.activeProjectId,
       );
       runtime.view.get("libraryName").value =
-        active?.name || runtime.view.get("name").value;
+        active?.name || runtime.services.collection.name();
       runtime.view.get("projectFolder").value = active?.folderId || "";
       runtime.view.get("libraryStatus").textContent =
         runtime.state.libraryRecords.length + " projetos guardados.";
