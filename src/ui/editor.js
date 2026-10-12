@@ -178,9 +178,19 @@ export function createService(runtime) {
   }
 
   function updateExportState() {
-    runtime.view.get("export").disabled =
+    const isBack =
+      runtime.state.activeTab === "back" ||
+      (runtime.state.activeTab === "finish" &&
+        runtime.view.get("downloadSide").value === "back");
+    const blocked =
       runtime.services.editor.exportBusy() ||
-      (runtime.state.activeTab === "back" && !runtime.state.media.back);
+      (isBack && !runtime.state.media.back);
+    runtime.view.get("export").disabled = blocked;
+    runtime.view.get("finishPng").disabled = blocked;
+    runtime.view.get("downloadHint").textContent =
+      isBack && !runtime.state.media.back
+        ? "Envie uma imagem na etapa Verso para baixar esse lado."
+        : "Carta de 63 × 88 mm. O PNG inclui 3 mm de margem branca em cada lado, totalizando 69 × 94 mm.";
   }
 
   function lockEditor() {
@@ -215,11 +225,25 @@ export function createService(runtime) {
       "[data-tab]",
     )) {
       const selected = button.dataset.tab === name;
-      button.setAttribute("aria-selected", String(selected));
-      button.tabIndex = selected ? 0 : -1;
+      button.setAttribute(
+        button.dataset.tab === "layers" ? "aria-pressed" : "aria-selected",
+        String(selected),
+      );
+      button.tabIndex = selected || button.dataset.tab === "layers" ? 0 : -1;
+      if (selected)
+        button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
       runtime.view.get("pane-" + button.dataset.tab).hidden = !selected;
     }
+    const index = runtime.config.editorSteps.indexOf(name);
+    runtime.view.get("stepStatus").textContent =
+      index < 0
+        ? "Ajustes avançados · Camadas"
+        : `Etapa ${index + 1} de 7 · ${runtime.config.stepLabels[index]}`;
+    runtime.view.get("previousStep").disabled = index === 0;
+    runtime.view.get("nextStep").disabled =
+      index === runtime.config.editorSteps.length - 1;
     runtime.services.renderer.render();
+    runtime.services.editor.updateExportState();
   }
 
   function changedCore() {

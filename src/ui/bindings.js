@@ -291,6 +291,7 @@ export function createService(runtime) {
   const exportHandlerCore = async () => {
     const button = runtime.view.get("export");
     button.disabled = true;
+    runtime.view.get("finishPng").disabled = true;
     try {
       if (runtime.state.setLoading)
         throw new Error("Aguarde o símbolo da edição terminar de carregar.");
@@ -309,7 +310,11 @@ export function createService(runtime) {
         blob,
         runtime.services.projects.safeName() +
           "_" +
-          (runtime.state.activeTab === "back" ? "verso" : "frente") +
+          (runtime.state.activeTab === "back" ||
+          (runtime.state.activeTab === "finish" &&
+            runtime.view.get("downloadSide").value === "back")
+            ? "verso"
+            : "frente") +
           "_69x94mm.png",
       );
       runtime.services.editor.message(
@@ -322,7 +327,10 @@ export function createService(runtime) {
       );
     } finally {
       button.disabled =
-        runtime.state.activeTab === "back" && !runtime.state.media.back;
+        (runtime.state.activeTab === "back" ||
+          (runtime.state.activeTab === "finish" &&
+            runtime.view.get("downloadSide").value === "back")) &&
+        !runtime.state.media.back;
     }
   };
   return {

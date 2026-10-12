@@ -724,3 +724,39 @@ dialog canvas {
     flex-basis: 45%;
   }
 }
+
+.step-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 0;
+}
+.step-navigation .hint {
+  margin: 0;
+  text-align: center;
+}
+.advanced-access {
+  margin-bottom: 14px;
+}
+.finish-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+.finish-options .hint {
+  margin: 0 0 12px;
+}
+@media (max-width: 780px) {
+  .step-navigation button {
+    padding: 8px;
+    font-size: 0.8rem;
+    min-height: 44px;
+  }
+  .step-navigation .hint {
+    font-size: 0.72rem;
+  }
+  .tabs button[aria-selected="true"] {
+    border-bottom: 3px solid #dab6ff;
+  }
+}

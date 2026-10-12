@@ -598,7 +598,11 @@ export function createService(runtime) {
   function renderCore() {
     runtime.view.canvas.width = 1260;
     runtime.view.canvas.height = 1760;
-    if (runtime.state.activeTab === "back") {
+    if (
+      runtime.state.activeTab === "back" ||
+      (runtime.state.activeTab === "finish" &&
+        runtime.view.get("downloadSide").value === "back")
+    ) {
       runtime.services.geometry.rounded(
         runtime.view.context,
         0,
@@ -629,16 +633,23 @@ export function createService(runtime) {
       }
     } else runtime.services.renderer.renderFront(runtime.view.context);
     runtime.view.get("previewTitle").textContent =
-      runtime.state.activeTab === "back"
+      runtime.state.activeTab === "back" ||
+      (runtime.state.activeTab === "finish" &&
+        runtime.view.get("downloadSide").value === "back")
         ? "Prévia do verso"
         : "Prévia da frente";
     runtime.view.get("export").textContent =
-      runtime.state.activeTab === "back"
+      runtime.state.activeTab === "back" ||
+      (runtime.state.activeTab === "finish" &&
+        runtime.view.get("downloadSide").value === "back")
         ? "↓ Salvar verso em PNG"
         : "↓ Salvar frente em PNG";
     runtime.view.get("export").disabled =
       runtime.state.batchRendering ||
-      (runtime.state.activeTab === "back" && !runtime.state.media.back);
+      ((runtime.state.activeTab === "back" ||
+        (runtime.state.activeTab === "finish" &&
+          runtime.view.get("downloadSide").value === "back")) &&
+        !runtime.state.media.back);
     for (const id of runtime.config.fields) {
       const output = runtime.view.get("v-" + id);
       if (output)
@@ -652,7 +663,9 @@ export function createService(runtime) {
       c.height = 1760;
       c.getContext("2d").drawImage(runtime.view.canvas, 0, 0);
       runtime.view.get("dialogTitle").textContent =
-        runtime.state.activeTab === "back"
+        runtime.state.activeTab === "back" ||
+        (runtime.state.activeTab === "finish" &&
+          runtime.view.get("downloadSide").value === "back")
           ? "Verso ampliado"
           : "Frente ampliada";
     }

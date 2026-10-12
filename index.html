@@ -11,7 +11,7 @@
     <div class="wrap">
       <header>
         <div class="brand">
-          <small>✦ Arcana Studio · 2.0</small>
+          <small>✦ Arcana Studio · 3.0</small>
           <h1>Crie sua carta.</h1>
           <p>Arte, moldura, textos e símbolos em camadas independentes.</p>
         </div>
@@ -56,7 +56,7 @@
           ><small>63 × 88 mm · exportação com margem branca de 3 mm</small>
         </aside>
         <div class="controls">
-          <nav class="tabs" role="tablist" aria-label="Editor de cartas">
+          <nav class="tabs" role="tablist" aria-label="Etapas de criação">
             <button
               id="tab-card"
               role="tab"
@@ -75,15 +75,6 @@
             >
               Moldura</button
             ><button
-              id="tab-text"
-              role="tab"
-              aria-controls="pane-text"
-              aria-selected="false"
-              data-tab="text"
-              tabindex="-1"
-            >
-              Texto</button
-            ><button
               id="tab-art"
               role="tab"
               aria-controls="pane-art"
@@ -93,6 +84,15 @@
             >
               Arte</button
             ><button
+              id="tab-text"
+              role="tab"
+              aria-controls="pane-text"
+              aria-selected="false"
+              data-tab="text"
+              tabindex="-1"
+            >
+              Texto</button
+            ><button
               id="tab-symbol"
               role="tab"
               aria-controls="pane-symbol"
@@ -100,7 +100,7 @@
               data-tab="symbol"
               tabindex="-1"
             >
-              Símbolos</button
+              Detalhes</button
             ><button
               id="tab-back"
               role="tab"
@@ -111,23 +111,48 @@
             >
               Verso</button
             ><button
-              id="tab-layers"
+              id="tab-finish"
               role="tab"
-              aria-controls="pane-layers"
+              aria-controls="pane-finish"
               aria-selected="false"
-              data-tab="layers"
+              data-tab="finish"
               tabindex="-1"
+            >
+              Finalizar
+            </button>
+          </nav>
+          <div class="step-navigation">
+            <button id="previousStep" type="button">← Anterior</button
+            ><span id="stepStatus" class="hint" aria-live="polite"
+              >Etapa 1 de 7 · Carta</span
+            ><button id="nextStep" type="button">Próximo →</button>
+          </div>
+          <details class="advanced-access">
+            <summary>Ajustes avançados</summary>
+            <p class="hint">
+              Controle a ordem, a opacidade e a visibilidade das camadas.
+            </p>
+            <button
+              id="tab-layers"
+              role="button"
+              aria-controls="pane-layers"
+              aria-pressed="false"
+              data-tab="layers"
             >
               Camadas
             </button>
-          </nav>
+          </details>
           <div class="panel">
             <section id="pane-card" role="tabpanel" aria-labelledby="tab-card">
               <h2>Comece com uma carta</h2>
               <p class="hint">
-                Pesquise para importar os dados ou edite os campos na aba Texto
-                para criar uma carta própria.
+                Importe uma carta existente ou comece uma carta própria. Você
+                poderá ajustar todos os campos depois.
               </p>
+              <button id="createBlank" type="button">
+                Criar carta do zero
+              </button>
+              <p class="hint">Comece sem os dados da carta importada.</p>
               <label for="searchName">Nome da carta</label>
               <div class="row">
                 <input
@@ -342,53 +367,7 @@
               </div>
               <label>Inserir símbolo no campo selecionado</label>
               <div id="manaButtons" class="mana-buttons"></div>
-              <div
-                class="format-tools"
-                role="group"
-                aria-label="Formatação de texto"
-              >
-                <button id="boldText" type="button"><b>Negrito</b></button
-                ><button id="italicText" type="button"><i>Itálico</i></button
-                ><button id="clearTextStyle" type="button">
-                  Limpar estilo
-                </button>
-              </div>
-              <p class="hint">
-                Selecione um trecho nas habilidades ou na ambientação e use os
-                botões. [b]negrito[/b] e [i]itálico[/i] aparecem formatados na
-                carta.
-              </p>
-              <div class="grid">
-                <div>
-                  <label for="textAlign">Alinhamento</label
-                  ><select id="textAlign">
-                    <option value="left">Esquerda</option>
-                    <option value="center">Centro</option>
-                    <option value="right">Direita</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="rulesColor">Cor do texto</label
-                  ><input id="rulesColor" type="color" value="#17151a" />
-                </div>
-              </div>
-              <label for="lineSpacing"
-                >Espaçamento entre linhas
-                <span class="value" id="v-lineSpacing"></span></label
-              ><input
-                id="lineSpacing"
-                type="range"
-                min="1.05"
-                max="1.65"
-                step=".01"
-                value="1.28"
-              /><label
-                ><input id="customInk" type="checkbox" /> Usar cor de texto
-                personalizada</label
-              ><label
-                ><input id="reminderItalic" type="checkbox" checked /> Texto
-                entre parênteses em itálico</label
-              ><label for="rules">Habilidades</label
+              <label for="rules">Habilidades</label
               ><textarea
                 id="rules"
                 placeholder="{T}: Adicione {C}{C}."
@@ -411,19 +390,6 @@
                 <div>
                   <label for="loyalty">Lealdade / defesa</label
                   ><input id="loyalty" type="text" />
-                </div>
-                <div>
-                  <label for="textScale"
-                    >Tamanho do texto
-                    <span id="v-textScale" class="value"></span></label
-                  ><input
-                    id="textScale"
-                    type="range"
-                    min=".7"
-                    max="1.5"
-                    step=".05"
-                    value="1"
-                  />
                 </div>
               </div>
               <p class="hint">
@@ -517,11 +483,74 @@
                 </p>
               </details>
               <details>
+                <summary>Formatação avançada</summary>
+                <div>
+                  <label for="textScale"
+                    >Tamanho do texto
+                    <span id="v-textScale" class="value"></span></label
+                  ><input
+                    id="textScale"
+                    type="range"
+                    min=".7"
+                    max="1.5"
+                    step=".05"
+                    value="1"
+                  />
+                </div>
+                <div
+                  class="format-tools"
+                  role="group"
+                  aria-label="Formatação de texto"
+                >
+                  <button id="boldText" type="button"><b>Negrito</b></button
+                  ><button id="italicText" type="button"><i>Itálico</i></button
+                  ><button id="clearTextStyle" type="button">
+                    Limpar estilo
+                  </button>
+                </div>
+                <p class="hint">
+                  Selecione um trecho nas habilidades ou na ambientação e use os
+                  botões. [b]negrito[/b] e [i]itálico[/i] aparecem formatados na
+                  carta.
+                </p>
+                <div class="grid">
+                  <div>
+                    <label for="textAlign">Alinhamento</label
+                    ><select id="textAlign">
+                      <option value="left">Esquerda</option>
+                      <option value="center">Centro</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="rulesColor">Cor do texto</label
+                    ><input id="rulesColor" type="color" value="#17151a" />
+                  </div>
+                </div>
+                <label for="lineSpacing"
+                  >Espaçamento entre linhas
+                  <span class="value" id="v-lineSpacing"></span></label
+                ><input
+                  id="lineSpacing"
+                  type="range"
+                  min="1.05"
+                  max="1.65"
+                  step=".01"
+                  value="1.28"
+                /><label
+                  ><input id="customInk" type="checkbox" /> Usar cor de texto
+                  personalizada</label
+                ><label
+                  ><input id="reminderItalic" type="checkbox" checked /> Texto
+                  entre parênteses em itálico</label
+                >
+              </details>
+              <details>
                 <summary>Tipografia</summary>
                 <p class="hint">
-                  Beleren para nomes, tipos e força/resistência. Plantin para
-                  habilidades e ambientação. A moldura Clássica usa a fonte de
-                  títulos antiga.
+                  Beleren para nomes, tipos e força/resistência. Fonte serifada
+                  do sistema para habilidades e ambientação. A moldura Clássica
+                  usa a fonte de títulos antiga.
                 </p>
                 <label for="titleFontFile">Fonte própria para títulos</label
                 ><input
@@ -540,23 +569,6 @@
                 <p id="fontStatus" class="status" aria-live="polite">
                   Fontes incorporadas ao aplicativo.
                 </p>
-              </details>
-              <details>
-                <summary>Informações de coleção e artista</summary>
-                <div class="grid">
-                  <div>
-                    <label for="collector">Número</label
-                    ><input id="collector" type="text" />
-                  </div>
-                  <div>
-                    <label for="language">Idioma</label
-                    ><input id="language" type="text" value="PT" />
-                  </div>
-                  <div class="wide">
-                    <label for="artist">Artista</label
-                    ><input id="artist" type="text" />
-                  </div>
-                </div>
               </details>
             </section>
             <section
@@ -704,7 +716,22 @@
               aria-labelledby="tab-symbol"
               hidden
             >
-              <h2>Símbolo da edição</h2>
+              <h2>Detalhes da carta</h2>
+              <h3>Coleção e artista</h3>
+              <div class="grid">
+                <div>
+                  <label for="collector">Número</label
+                  ><input id="collector" type="text" />
+                </div>
+                <div>
+                  <label for="language">Idioma</label
+                  ><input id="language" type="text" value="PT" />
+                </div>
+                <div class="wide">
+                  <label for="artist">Artista</label
+                  ><input id="artist" type="text" />
+                </div>
+              </div>
               <label for="setCode">Código da edição</label>
               <div class="row">
                 <input
@@ -835,7 +862,7 @@
               aria-labelledby="tab-back"
               hidden
             >
-              <h2>Verso personalizado</h2>
+              <h2>Verso personalizado · opcional</h2>
               <label for="backFile">Enviar imagem do verso</label
               ><input
                 id="backFile"
@@ -954,6 +981,53 @@
                 /><button id="removeOverlay">Remover sobreposição</button>
               </details>
             </section>
+            <section
+              id="pane-finish"
+              role="tabpanel"
+              aria-labelledby="tab-finish"
+              hidden
+            >
+              <h2>Revise e finalize</h2>
+              <p class="hint">
+                Confira a prévia, os textos e o enquadramento antes de baixar.
+                Use Ampliar para conferir os detalhes.
+              </p>
+              <label for="downloadSide">Lado para visualizar e baixar</label
+              ><select id="downloadSide">
+                <option value="front">Frente</option>
+                <option value="back">Verso personalizado</option>
+              </select>
+              <p id="downloadHint" class="hint">
+                Carta de 63 × 88 mm. O PNG inclui 3 mm de margem branca em cada
+                lado, totalizando 69 × 94 mm.
+              </p>
+              <div class="finish-options">
+                <button id="finishPng" class="primary" type="button">
+                  Baixar PNG
+                </button>
+                <p class="hint">
+                  Uma imagem pronta para impressão. Imprima em tamanho real /
+                  100%.
+                </p>
+                <button id="finishPdf" type="button">
+                  Preparar PDF para impressão
+                </button>
+                <p class="hint">
+                  Organize cartas, cópias e frente e verso em folhas A4 ou
+                  Letter.
+                </p>
+                <button id="finishProject" type="button">
+                  Baixar projeto editável
+                </button>
+                <p class="hint">
+                  Guarde uma cópia com imagens e fontes para continuar a edição
+                  em outro dispositivo.
+                </p>
+                <button id="finishLibrary" type="button">
+                  Abrir biblioteca para salvar
+                </button>
+              </div>
+            </section>
           </div>
         </div>
       </main>
@@ -968,8 +1042,8 @@
         utilizar. Biblioteca de molduras: recursos de referência MTGCardBuilder;
         desenhos e elementos de Magic pertencem à Wizards of the Coast e aos
         respectivos criadores. Tipografia: Beleren e Magic the Gathering
-        (Wizards of the Coast) e Plantin (Monotype); arquivos de referência
-        distribuídos por Saeris e Proxyshop para fan content pessoal.
+        (Wizards of the Coast) ; arquivos de referência distribuídos por Saeris
+        e Proxyshop para fan content pessoal.
       </p>
     </div>
     <div class="footer">

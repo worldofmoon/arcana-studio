@@ -4,7 +4,10 @@ export function initializeControllers(runtime) {
   )) {
     button.onclick = () => runtime.services.editor.tab(button.dataset.tab);
     button.addEventListener("keydown", (e) => {
-      const keys = ["card", "frame", "text", "art", "symbol", "back", "layers"],
+      const keys =
+          button.dataset.tab === "layers"
+            ? [...runtime.config.editorSteps, "layers"]
+            : runtime.config.editorSteps,
         i = keys.indexOf(button.dataset.tab);
       let next;
       if (e.key === "ArrowRight") next = keys[(i + 1) % keys.length];
@@ -19,6 +22,58 @@ export function initializeControllers(runtime) {
       }
     });
   }
+  const moveStep = (offset) => {
+    const steps = runtime.config.editorSteps;
+    const current = steps.indexOf(runtime.state.activeTab);
+    const index = Math.max(
+      0,
+      Math.min(steps.length - 1, (current < 0 ? 3 : current) + offset),
+    );
+    runtime.services.editor.tab(steps[index]);
+    runtime.view.get("tab-" + steps[index]).focus();
+  };
+  runtime.view.get("previousStep").onclick = () => moveStep(-1);
+  runtime.view.get("nextStep").onclick = () => moveStep(1);
+  runtime.view.get("downloadSide").onchange = () => {
+    runtime.services.renderer.render();
+    runtime.services.editor.updateExportState();
+  };
+  runtime.view.get("finishPng").onclick = () =>
+    runtime.services.bindings.exportHandler();
+  runtime.view.get("finishPdf").onclick = () =>
+    runtime.services.bindings.pdfBtnHandler();
+  runtime.view.get("finishProject").onclick = () =>
+    runtime.services.bindings.saveProjectHandler();
+  runtime.view.get("finishLibrary").onclick = () =>
+    runtime.services.bindings.libraryBtnHandler();
+  runtime.view.get("createBlank").onclick = async () => {
+    if (
+      runtime.state.dirty &&
+      !runtime.platform.confirm(
+        "Começar uma carta do zero? Baixe ou salve o projeto atual para guardar uma cópia. Você também pode desfazer esta ação.",
+      )
+    )
+      return;
+    try {
+      const restored = await runtime.services.projects.restoreProject({
+        format: "arcana-studio",
+        version: 2,
+        values: { ...runtime.state.fieldDefaults },
+        media: {},
+        fonts: {},
+      });
+      if (!restored) return;
+      runtime.state.activeProjectId = null;
+      runtime.services.editor.changed();
+      runtime.services.editor.tab("frame");
+      runtime.services.editor.message(
+        "Carta em branco criada. Escolha a moldura para começar.",
+      );
+    } catch (error) {
+      runtime.services.editor.message(error.message, true);
+    }
+  };
+  runtime.services.editor.tab("card");
   for (const id of runtime.config.fields) {
     runtime.view
       .get(id)

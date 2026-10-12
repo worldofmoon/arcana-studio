@@ -116,3 +116,22 @@ export const layerNames = {
   footer: "Coleção e artista",
   overlay: "Imagem sobreposta",
 };
+
+export const editorSteps = [
+  "card",
+  "frame",
+  "art",
+  "text",
+  "symbol",
+  "back",
+  "finish",
+];
+export const stepLabels = [
+  "Carta",
+  "Moldura",
+  "Arte",
+  "Texto",
+  "Detalhes",
+  "Verso",
+  "Finalizar",
+];
