@@ -1,7 +1,6 @@
 export function createService(runtime) {
   function message(text, error = false) {
-    runtime.view.get("appStatus").textContent = text;
-    runtime.view.get("appStatus").classList.toggle("error", error);
+    runtime.services.experience.notify(text, error);
   }
 
   function num(id) {
@@ -188,6 +187,14 @@ export function createService(runtime) {
       (isBack && !runtime.state.media.back);
     runtime.view.get("export").disabled = blocked;
     runtime.view.get("finishPng").disabled = blocked;
+    runtime.services.collection.updateOperationButtons();
+    if (
+      runtime.view.get("printDialog").open &&
+      !runtime.state.batchRendering &&
+      !runtime.state.editorLocks &&
+      !runtime.state.collectionBusy
+    )
+      runtime.services.printing.updatePrintSummary();
     runtime.view.get("downloadHint").textContent =
       isBack && !runtime.state.media.back
         ? "Envie uma imagem na etapa Verso para baixar esse lado."
@@ -240,6 +247,11 @@ export function createService(runtime) {
       index < 0
         ? "Ajustes avançados · Camadas"
         : `Etapa ${index + 1} de 7 · ${runtime.config.stepLabels[index]}`;
+    runtime.view.get("stepStatusBottom").textContent =
+      runtime.view.get("stepStatus").textContent;
+    runtime.view.get("previousStepBottom").disabled = index === 0;
+    runtime.view.get("nextStepBottom").disabled =
+      index === runtime.config.editorSteps.length - 1;
     runtime.view.get("previousStep").disabled = index === 0;
     runtime.view.get("nextStep").disabled =
       index === runtime.config.editorSteps.length - 1;
@@ -249,6 +261,7 @@ export function createService(runtime) {
 
   function changedCore() {
     runtime.state.dirty = true;
+    runtime.services.experience.changed();
     if (
       runtime.state.collection &&
       !runtime.state.batchRendering &&

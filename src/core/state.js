@@ -19,6 +19,8 @@ export function initializeState(runtime) {
   runtime.state.faceIndex = 0;
   runtime.state.draftTimer = null;
   runtime.state.dirty = false;
+  runtime.state.editRevision = 0;
+  runtime.state.draftStatus = "idle";
   runtime.state.mediaEpoch = Object.fromEntries(
     runtime.config.mediaKinds.map((k) => [k, 0]),
   );

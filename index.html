@@ -19,20 +19,20 @@
           <button
             id="undo"
             title="Desfazer (Ctrl/Cmd+Z)"
-            aria-label="Desfazer"
+            aria-label="Desfazer na carta"
             disabled
           >
             ↶</button
           ><button
             id="redo"
             title="Refazer (Ctrl/Cmd+Shift+Z)"
-            aria-label="Refazer"
+            aria-label="Refazer na carta"
             disabled
           >
             ↷</button
-          ><button id="libraryBtn">Projetos</button
+          ><button id="libraryBtn">Biblioteca</button
           ><button id="pdfBtn">Imprimir PDF</button
-          ><button id="saveProject">Baixar projeto</button
+          ><button id="saveProject">Baixar projeto editável</button
           ><button id="openProject">Abrir projeto</button
           ><input
             id="projectFile"
@@ -42,8 +42,30 @@
           />
         </div>
       </header>
+      <div class="project-context" aria-label="Projeto e salvamento">
+        <div class="context-identity">
+          <strong id="currentProjectName">Projeto: Novo projeto</strong
+          ><span id="currentCardName">Carta 1 de 1</span>
+        </div>
+        <div class="context-saving">
+          <span id="saveStatus" role="status" aria-live="polite"
+            >Rascunho ainda não salvo</span
+          ><button id="backupNow" type="button" hidden>
+            Baixar cópia agora</button
+          ><span id="librarySaveStatus"></span>
+        </div>
+        <details class="save-explanation">
+          <summary>Onde está salvo?</summary>
+          <p>
+            O rascunho é salvo automaticamente neste navegador. A biblioteca
+            guarda uma versão quando você escolhe Salvar. Para usar em outro
+            dispositivo ou manter um backup, baixe o projeto editável. Estes
+            arquivos não são sincronizados entre dispositivos.
+          </p>
+        </details>
+      </div>
       <div id="restoreBar" hidden>
-        <span>Há um projeto salvo neste navegador.</span
+        <span id="restoreText">Há um rascunho salvo neste navegador.</span
         ><button id="restoreDraft">Restaurar</button>
       </div>
       <details class="collection-panel">
@@ -115,11 +137,25 @@
           </button>
         </details>
       </details>
+      <div id="collectionHistoryBar" class="collection-history" hidden>
+        <button id="undoCollection" type="button" disabled>
+          Desfazer ação no conjunto</button
+        ><button id="redoCollection" type="button" disabled>
+          Refazer ação no conjunto</button
+        ><small id="collectionHistoryHint"></small>
+      </div>
       <main class="editor">
         <aside class="preview">
+          <div class="preview-context">
+            <strong id="previewProjectName"></strong
+            ><span id="previewCardName"></span>
+          </div>
           <div class="preview-head">
             <strong id="previewTitle">Prévia da frente</strong
-            ><button id="expand">⤢ Ampliar</button>
+            ><button id="expand">⤢ Ampliar</button
+            ><button id="compactPreview" type="button" aria-expanded="true">
+              Compactar
+            </button>
           </div>
           <canvas id="canvas" width="1260" height="1760"></canvas
           ><small>63 × 88 mm · exportação com margem branca de 3 mm</small>
@@ -1104,13 +1140,15 @@
                 </button>
               </div>
             </section>
+            <div class="step-navigation bottom-navigation">
+              <button id="previousStepBottom" type="button">← Anterior</button
+              ><span id="stepStatusBottom" class="hint"></span
+              ><button id="nextStepBottom" type="button">Próximo →</button>
+            </div>
           </div>
         </div>
       </main>
-      <p id="appStatus" class="status" role="status" aria-live="polite">
-        Pronto para criar. Frente e verso: 63 × 88 mm. PNG com margem: 69 × 94
-        mm.
-      </p>
+
       <p class="note">
         Molduras próprias para proxies pessoais. Projeto independente, sem
         afiliação à Wizards of the Coast. Dados, ilustrações importadas e
@@ -1121,6 +1159,15 @@
         (Wizards of the Coast) ; arquivos de referência distribuídos por Saeris
         e Proxyshop para fan content pessoal.
       </p>
+    </div>
+    <div id="feedback" class="feedback" hidden>
+      <p id="appStatus" class="status" role="status" aria-live="polite">
+        Pronto para criar. Frente e verso: 63 × 88 mm. PNG com margem: 69 × 94
+        mm.
+      </p>
+      <button id="dismissFeedback" type="button" aria-label="Fechar mensagem">
+        ✕
+      </button>
     </div>
     <div class="footer">
       <small>PNG · 69 × 94 mm · imprimir em tamanho real / 100%</small
@@ -1296,6 +1343,15 @@
       </p>
       <h3>Projetos da biblioteca</h3>
       <div id="printList"></div>
+      <div class="print-summary">
+        <strong>Resumo da impressão</strong>
+        <p id="printSummary" role="status" aria-live="polite"></p>
+        <p id="printWarning" class="error" hidden></p>
+        <small
+          >Formato final de cada imagem: 69 × 94 mm, incluindo 3 mm de margem
+          branca.</small
+        >
+      </div>
       <p id="pdfStatus" class="status" aria-live="polite">
         Selecione suas cartas.
       </p>

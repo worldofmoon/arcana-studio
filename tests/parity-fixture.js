@@ -72,7 +72,7 @@ function node(id = "") {
   };
 }
 for (const m of html.matchAll(
-  /<(input|select|textarea|button|canvas|div|span|p|strong|dialog|section|script|nav|h3)[^>]*id="([^"]+)"[^>]*>/g,
+  /<(input|select|textarea|button|canvas|div|span|p|strong|dialog|section|script|nav|h3|small)[^>]*id="([^"]+)"[^>]*>/g,
 )) {
   const n = node(m[2]),
     v = m[0].match(/value="([^"]*)"/);

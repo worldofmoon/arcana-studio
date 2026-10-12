@@ -64,3 +64,9 @@ Limite atual: não foi executada uma sessão em Safari/iPhone real nesta refator
 O formato `arcana-project` v1 contém nome, carta ativa, verso compartilhado e cartas com identificador, nome opcional, quantidade, miniatura e snapshot `arcana-studio` v2. A validação verifica todas as cartas antes de modificar o editor. O histórico permanece um recurso de edição da carta durante a sessão; não é serializado no arquivo do conjunto.
 
 Autosave e biblioteca usam snapshots do conjunto. PDF expande conjuntos em cartas e multiplica as quantidades; o ZIP reúne um PNG por carta com nomes únicos e restaura o editor ao terminar ou falhar. `domain/zip.js` implementa arquivos ZIP sem compressão, com CRC-32 e nomes UTF-8, evitando dependências adicionais.
+
+## UX, salvamento e recuperação
+
+`ui/experience.js` coordena mensagens, estados de salvamento, identidade e modo compacto. `projects.saveDraft` serializa gravações e associa cada payload à revisão capturada; só a conclusão da revisão atual pode mostrar que o rascunho está salvo. A data fica como metadata opcional `savedAt`, preservando compatibilidade com projetos antigos.
+
+`domain/print-plan.js` concentra expansão dos conjuntos, quantidades, capacidade, páginas e validações, reutilizado no resumo e no PDF. `domain/operation-history.js` mantém checkpoints imutáveis com strings de mídia compartilhadas e até 10 ações de conjunto. A recuperação restaura o projeto e os históricos de carta apenas após carregar com sucesso a carta ativa. Comparação semântica ignora a seleção e as miniaturas; divergências posteriores exigem confirmação antes de substituir edições.

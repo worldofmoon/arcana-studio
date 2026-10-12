@@ -46,6 +46,16 @@ O verso pode ser compartilhado com todas as cartas; a moldura e as cores podem s
 
 Conjuntos usam `arcana-project` v1 e contêm snapshots `arcana-studio` v2. Arquivos antigos continuam abrindo como uma carta. Autosave, biblioteca local e backups preservam o conjunto inteiro. Projetos baixados incluem as imagens remotas convertidas para dados locais; o limite de arquivo continua em 60 MB e o ZIP em 200 MB.
 
+## Salvamento e experiência de edição
+
+O indicador distingue alterações pendentes, salvamento, rascunho salvo com horário e falha, oferecendo download de segurança. Rascunhos são gravados em sequência: terminar uma gravação antiga não marca edições novas como salvas. A biblioteca informa separadamente sua versão; rascunho, biblioteca e arquivo baixado não são sincronizados entre dispositivos.
+
+A prévia identifica permanentemente projeto, carta e posição no conjunto. A navegação é repetida ao fim de cada etapa. No celular, a prévia pode ser compactada e se reduz durante a digitação; a posição das abas acompanha sua altura real quando ResizeObserver está disponível.
+
+O PDF apresenta previamente cartas, cópias, folhas, páginas e lados, com alertas sobre versos ausentes, limite de 120 cópias e seleção duplicada do projeto atual na biblioteca. O cálculo do resumo e o da exportação compartilham o mesmo planejador.
+
+O conjunto possui Desfazer/Refazer separado do histórico da carta, para até 10 ações na sessão: adicionar, duplicar, excluir, renomear, ordenar, alterar quantidades, compartilhar verso e aplicar moldura. Se houver edições posteriores, a recuperação exige confirmação porque também as reverterá. Abrir outro projeto inicia um novo histórico; o histórico não integra o arquivo salvo.
+
 ## Testes e publicação
 
 `npm run check` verifica a sintaxe, imports, referências do HTML e arquivos das molduras. `npm test` executa testes de padrões e regressão com DOM simulado e canvas nativo: importação, faces, camadas, fontes, histórico, biblioteca, backups, PNG/PDF e concorrência.

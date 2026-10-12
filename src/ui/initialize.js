@@ -1,4 +1,5 @@
 export function initializeControllers(runtime) {
+  runtime.services.experience.bind();
   for (const button of runtime.platform.document.querySelectorAll(
     "[data-tab]",
   )) {
@@ -34,6 +35,8 @@ export function initializeControllers(runtime) {
   };
   runtime.view.get("previousStep").onclick = () => moveStep(-1);
   runtime.view.get("nextStep").onclick = () => moveStep(1);
+  runtime.view.get("previousStepBottom").onclick = () => moveStep(-1);
+  runtime.view.get("nextStepBottom").onclick = () => moveStep(1);
   runtime.view.get("downloadSide").onchange = () => {
     runtime.services.renderer.render();
     runtime.services.editor.updateExportState();
@@ -84,6 +87,8 @@ export function initializeControllers(runtime) {
   bindCollection("collectionLater", () => collection.move(1));
   bindCollection("collectionFrame", () => collection.applyFrame());
   bindCollection("collectionZip", () => collection.exportPngs());
+  bindCollection("undoCollection", () => collection.moveOperation(-1));
+  bindCollection("redoCollection", () => collection.moveOperation(1));
   runtime.view.get("collectionName").onchange = () =>
     collection.handle(() =>
       collection.renameProject(runtime.view.get("collectionName").value),
@@ -254,6 +259,7 @@ export function initializeControllers(runtime) {
       });
       db.close();
       runtime.view.get("restoreBar").hidden = !runtime.state.availableDraft;
+      runtime.services.experience.restoreHint(runtime.state.availableDraft);
     } catch {}
   })();
   for (const [id, kind] of [
@@ -361,6 +367,20 @@ export function initializeControllers(runtime) {
     runtime.services.bindings.storeProjectHandler;
   runtime.view.get("saveCopy").onclick =
     runtime.services.bindings.saveCopyHandler;
+  for (const id of [
+    "printPaper",
+    "printSides",
+    "includeCurrent",
+    "currentCopies",
+    "cropMarks",
+  ]) {
+    runtime.view
+      .get(id)
+      .addEventListener("change", runtime.services.printing.updatePrintSummary);
+    runtime.view
+      .get(id)
+      .addEventListener("input", runtime.services.printing.updatePrintSummary);
+  }
   runtime.view.get("pdfBtn").onclick = runtime.services.bindings.pdfBtnHandler;
   runtime.view.get("closePrint").onclick =
     runtime.services.bindings.closePrintHandler;

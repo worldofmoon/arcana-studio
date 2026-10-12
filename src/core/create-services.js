@@ -13,6 +13,7 @@ import { createService as create11 } from "../services/history.js";
 import { createService as create12 } from "../services/library.js";
 import { createService as create13 } from "../domain/project-schema.js";
 import { createService as createCollection } from "../services/collection.js";
+import { createService as createExperience } from "../ui/experience.js";
 export function createServices(runtime) {
   runtime.services = {};
   runtime.services.editor = create0(runtime);
@@ -29,6 +30,7 @@ export function createServices(runtime) {
   runtime.services.library = create12(runtime);
   runtime.services.schema = create13(runtime);
   runtime.services.collection = createCollection(runtime);
+  runtime.services.experience = createExperience(runtime);
   runtime.services.bindings = create10(runtime);
   return runtime.services;
 }

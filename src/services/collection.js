@@ -1,3 +1,8 @@
+import {
+  OperationHistory,
+  cloneValue,
+  projectFingerprint,
+} from "../domain/operation-history.js";
 import { renderCollection } from "../ui/collection-view.js";
 import { zipArchive } from "../domain/zip.js";
 const MAX_CARDS = 100;
@@ -13,9 +18,10 @@ const FRAME_FIELDS = [
   "colorRight",
   "colorBlend",
 ];
-const clone = (value) => JSON.parse(JSON.stringify(value));
+const clone = cloneValue;
 export function createService(runtime) {
   const sessions = new Map();
+  const operations = new OperationHistory();
   const uid = () => runtime.platform.crypto.randomUUID();
   const model = () => runtime.state.collection;
   const current = () => model()?.cards.find((c) => c.id === model().activeId);
@@ -126,20 +132,25 @@ export function createService(runtime) {
     }));
     return result;
   }
-  async function run(action) {
+  async function run(action, label = null) {
     if (runtime.services.editor.exportBusy() || runtime.state.collectionBusy)
       throw new Error(
         "Aguarde o carregamento terminar antes de trocar ou organizar cartas.",
       );
     runtime.services.history.commitHistory();
     capture();
+    const before = label ? checkpoint() : null;
+    let succeeded = false;
     runtime.state.collectionBusy = true;
     runtime.services.editor.lockEditor();
     try {
-      return await action();
+      const result = await action();
+      succeeded = true;
+      return result;
     } finally {
       runtime.state.collectionBusy = false;
       runtime.services.editor.unlockEditor();
+      if (label && succeeded) operations.record(label, before, checkpoint());
       render();
     }
   }
@@ -164,8 +175,10 @@ export function createService(runtime) {
         return false;
       runtime.state.collection = active ? incoming : null;
       sessions.clear();
+      operations.clear();
       if (active) restoreSession(active);
       runtime.state.activeProjectId = null;
+      runtime.view.get("librarySaveStatus").textContent = "";
       render();
       return true;
     } finally {
@@ -190,39 +203,43 @@ export function createService(runtime) {
   async function add(duplicate = false) {
     if ((model()?.cards.length || 1) >= MAX_CARDS)
       throw new Error("Use até 100 cartas por projeto.");
-    return run(async () => {
-      const deck = ensure(),
-        source = current();
-      const project = duplicate
-        ? clone(source.project)
-        : {
-            format: "arcana-studio",
-            version: 2,
-            values: { ...runtime.state.fieldDefaults },
-            media: {},
-            fonts: {},
-          };
-      if (deck.sharedBack) {
-        project.media.back = source.project.media.back;
-        for (const key of BACK_FIELDS)
-          project.values[key] = source.project.values[key];
-      }
-      const card = {
-        id: uid(),
-        label: duplicate
-          ? (source.label || source.project.values.name || "Carta") + " (cópia)"
-          : "",
-        copies: duplicate ? source.copies : 1,
-        project: runtime.services.projects.normalizedProject(project),
-        thumbnail: "",
-      };
-      if (!(await runtime.services.projects.restoreProject(card.project)))
-        return;
-      deck.cards.push(card);
-      deck.activeId = card.id;
-      restoreSession(card);
-      runtime.services.editor.tab(duplicate ? "text" : "card");
-    });
+    return run(
+      async () => {
+        const deck = ensure(),
+          source = current();
+        const project = duplicate
+          ? clone(source.project)
+          : {
+              format: "arcana-studio",
+              version: 2,
+              values: { ...runtime.state.fieldDefaults },
+              media: {},
+              fonts: {},
+            };
+        if (deck.sharedBack) {
+          project.media.back = source.project.media.back;
+          for (const key of BACK_FIELDS)
+            project.values[key] = source.project.values[key];
+        }
+        const card = {
+          id: uid(),
+          label: duplicate
+            ? (source.label || source.project.values.name || "Carta") +
+              " (cópia)"
+            : "",
+          copies: duplicate ? source.copies : 1,
+          project: runtime.services.projects.normalizedProject(project),
+          thumbnail: "",
+        };
+        if (!(await runtime.services.projects.restoreProject(card.project)))
+          return;
+        deck.cards.push(card);
+        deck.activeId = card.id;
+        restoreSession(card);
+        runtime.services.editor.tab(duplicate ? "text" : "card");
+      },
+      duplicate ? "Duplicar carta" : "Adicionar carta",
+    );
   }
   async function remove() {
     if (!model() || model().cards.length < 2)
@@ -245,68 +262,150 @@ export function createService(runtime) {
       deck.activeId = target.id;
       sessions.delete(old);
       restoreSession(target);
-    });
+    }, "Excluir carta");
   }
   function mark() {
     runtime.state.dirty = true;
     runtime.services.editor.changed();
     render();
   }
-  function renameProject(name) {
-    ensure().name = name.trim().slice(0, 160) || "Meu projeto";
+  function changeCollection(label, action) {
+    if (runtime.services.editor.exportBusy())
+      throw new Error("Aguarde o carregamento terminar.");
+    runtime.services.history.commitHistory();
+    capture();
+    const before = checkpoint();
+    action();
     mark();
+    operations.record(label, before, checkpoint());
+    render();
+  }
+  function renameProject(name) {
+    changeCollection("Renomear projeto", () => {
+      ensure().name = name.trim().slice(0, 160) || "Meu projeto";
+    });
   }
   function renameCard(label) {
-    ensure();
-    capture();
-    current().label = label.trim().slice(0, 160);
-    mark();
+    changeCollection("Renomear carta", () => {
+      ensure();
+      current().label = label.trim().slice(0, 160);
+    });
   }
   function copies(value) {
-    ensure();
-    current().copies = Math.max(
-      1,
-      Math.min(30, Math.trunc(Number(value) || 1)),
-    );
-    mark();
+    changeCollection("Alterar quantidade", () => {
+      ensure();
+      current().copies = Math.max(
+        1,
+        Math.min(30, Math.trunc(Number(value) || 1)),
+      );
+    });
   }
   function move(offset) {
-    ensure();
-    capture();
-    const deck = model(),
-      i = deck.cards.findIndex((c) => c.id === deck.activeId),
-      j = i + offset;
-    if (j < 0 || j >= deck.cards.length) return;
-    [deck.cards[i], deck.cards[j]] = [deck.cards[j], deck.cards[i]];
-    mark();
+    changeCollection("Reordenar cartas", () => {
+      const deck = ensure(),
+        i = deck.cards.findIndex((c) => c.id === deck.activeId),
+        j = i + offset;
+      if (j < 0 || j >= deck.cards.length) return;
+      [deck.cards[i], deck.cards[j]] = [deck.cards[j], deck.cards[i]];
+    });
   }
   function toggleBack(enabled) {
-    ensure();
-    capture();
     if (enabled && !runtime.state.media.back)
       throw new Error("Envie primeiro uma imagem na etapa Verso.");
-    model().sharedBack = enabled;
-    shareBack();
-    mark();
+    changeCollection("Alterar verso compartilhado", () => {
+      ensure().sharedBack = enabled;
+      shareBack();
+    });
   }
   function applyFrame() {
-    ensure();
-    capture();
-    const source = current().project;
     if (
       !runtime.platform.confirm(
         "Aplicar a moldura e suas cores a todas as cartas deste projeto?",
       )
     )
       return;
-    for (const card of model().cards) {
-      for (const key of FRAME_FIELDS)
-        card.project.values[key] = source.values[key];
-      card.project.media.frame = source.media.frame;
-      card.thumbnail = "";
-      sessions.delete(card.id);
+    changeCollection("Aplicar moldura a todas", () => {
+      ensure();
+      const source = current().project;
+      for (const card of model().cards) {
+        for (const key of FRAME_FIELDS)
+          card.project.values[key] = source.values[key];
+        card.project.media.frame = source.media.frame;
+        card.thumbnail = "";
+        sessions.delete(card.id);
+      }
+    });
+  }
+  function checkpoint() {
+    capture();
+    if (!model()) captureSession("single");
+    return {
+      project: snapshot(),
+      sessions: clone([...sessions]),
+      activeProjectId: runtime.state.activeProjectId,
+    };
+  }
+  function updateOperationButtons() {
+    const undo = operations.peek(-1),
+      redo = operations.peek(1),
+      busy = runtime.services.editor.exportBusy();
+    runtime.view.get("collectionHistoryBar").hidden = !undo && !redo;
+    runtime.view.get("undoCollection").disabled = busy || !undo;
+    runtime.view.get("redoCollection").disabled = busy || !redo;
+    runtime.view.get("undoCollection").textContent = undo
+      ? "Desfazer: " + undo.label
+      : "Desfazer ação no conjunto";
+    runtime.view.get("redoCollection").textContent = redo
+      ? "Refazer: " + redo.label
+      : "Refazer ação no conjunto";
+    runtime.view.get("collectionHistoryHint").textContent =
+      "Histórico do conjunto nesta sessão · até 10 ações. Desfazer da carta continua independente.";
+  }
+  async function moveOperation(direction) {
+    if (runtime.services.editor.exportBusy())
+      throw new Error("Aguarde o carregamento terminar.");
+    const entry = operations.peek(direction);
+    if (!entry) return;
+    const expected = direction < 0 ? entry.after : entry.before,
+      target = direction < 0 ? entry.before : entry.after;
+    if (
+      projectFingerprint(snapshot()) !== projectFingerprint(expected.project) &&
+      !runtime.platform.confirm(
+        "Há edições feitas depois desta ação. Recuperar este ponto do conjunto também reverterá essas edições. Deseja continuar?",
+      )
+    )
+      return;
+    const tab = runtime.state.activeTab;
+    runtime.state.historyRestoring = true;
+    try {
+      await run(async () => {
+        const restored = normalize(target.project),
+          active =
+            restored.format === "arcana-project"
+              ? restored.cards.find((c) => c.id === restored.activeId)
+              : null;
+        if (
+          !(await runtime.services.projects.restoreProject(
+            active?.project || restored,
+          ))
+        )
+          throw new Error("Não foi possível recuperar o conjunto.");
+        runtime.state.collection = active ? restored : null;
+        sessions.clear();
+        for (const [id, session] of target.sessions)
+          sessions.set(id, clone(session));
+        restoreSession(active || { id: "single", project: restored });
+        runtime.state.activeProjectId = target.activeProjectId;
+        runtime.services.editor.tab(tab);
+        operations.applied(direction);
+      });
+    } finally {
+      runtime.state.historyRestoring = false;
     }
     mark();
+    runtime.services.editor.message(
+      (direction < 0 ? "Ação desfeita: " : "Ação refeita: ") + entry.label,
+    );
   }
   async function portable() {
     const project = snapshot(),
@@ -348,7 +447,10 @@ export function createService(runtime) {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z0-9_-]+/g, "_");
   }
-  const render = () => renderCollection(runtime);
+  const render = () => {
+    renderCollection(runtime);
+    updateOperationButtons();
+  };
   async function handle(action) {
     try {
       await action();
@@ -443,6 +545,8 @@ export function createService(runtime) {
       );
   }
   return {
+    moveOperation,
+    updateOperationButtons,
     cardsOf,
     capture,
     ensure,

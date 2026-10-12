@@ -1,5 +1,6 @@
 export function renderCollection(runtime) {
   if (runtime.state.batchRendering || runtime.state.collectionBusy) return;
+  runtime.services.experience.identify();
   const deck = runtime.state.collection,
     active = deck?.cards.find((card) => card.id === deck.activeId);
   const write = (id, value) => {

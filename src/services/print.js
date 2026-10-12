@@ -1,3 +1,4 @@
+import { buildPrintPlan } from "../domain/print-plan.js";
 export function createService(runtime) {
   function saveBlob(blob, name) {
     const url = runtime.platform.URL.createObjectURL(blob),
@@ -286,13 +287,78 @@ export function createService(runtime) {
       row.append(check, image, title, copies);
       runtime.view.get("printList").append(row);
       runtime.state.printRows.push({ record, check, copies });
+      check.addEventListener("change", updatePrintSummary);
+      copies.addEventListener("input", updatePrintSummary);
+      copies.addEventListener("change", updatePrintSummary);
     }
     runtime.view.get("pdfStatus").textContent = runtime.state.libraryRecords
       .length
       ? "Selecione os projetos que deseja imprimir."
       : "Guarde projetos na biblioteca para imprimir várias cartas juntas.";
+    updatePrintSummary();
   }
 
+  function selectedItems(
+    currentProject = runtime.services.collection.snapshot(),
+  ) {
+    const items = [];
+    if (runtime.view.get("includeCurrent").checked)
+      items.push({
+        id: "current",
+        name: runtime.services.collection.name(),
+        project: currentProject,
+        copies: copiesValue(runtime.view.get("currentCopies")),
+      });
+    for (const item of runtime.state.printRows)
+      if (item.check.checked)
+        items.push({
+          id: item.record.id,
+          name: item.record.name,
+          project: item.record.project,
+          copies: copiesValue(item.copies),
+        });
+    return items;
+  }
+  function printPlan(items = selectedItems()) {
+    const paper = runtime.view.get("printPaper").value,
+      mode = runtime.view.get("printSides").value;
+    return buildPrintPlan(items, {
+      paper,
+      mode,
+      capacity: runtime.services.printing.slotsFor(paper).capacity,
+    });
+  }
+  function updatePrintSummary() {
+    if (runtime.state.batchRendering) return;
+    const plan = printPlan(),
+      side = {
+        front: "somente frentes",
+        back: "somente versos",
+        both: "frentes e versos",
+      }[plan.mode];
+    runtime.view.get("printSummary").textContent =
+      `${plan.unique} carta(s) selecionada(s) · ${plan.count} cópia(s) · ${plan.sheets} folha(s) · ${plan.pages} página(s) de PDF · ${plan.paper.toUpperCase()} · ${side}.`;
+    const warnings = [];
+    if (plan.error) warnings.push(plan.error);
+    if (plan.mode !== "front" && plan.missing.length)
+      warnings.push("Sem verso: " + plan.missing.join(", "));
+    if (
+      runtime.state.printRows.some(
+        (item) =>
+          item.check.checked &&
+          item.record.id === runtime.state.activeProjectId,
+      ) &&
+      runtime.view.get("includeCurrent").checked
+    )
+      warnings.push(
+        "O projeto atual também foi selecionado na biblioteca; suas quantidades serão somadas.",
+      );
+    runtime.view.get("printWarning").textContent = warnings.join(" ");
+    runtime.view.get("printWarning").hidden = !warnings.length;
+    runtime.view.get("generatePDF").disabled =
+      !!plan.error || runtime.services.editor.exportBusy();
+    return plan;
+  }
   function copiesValue(input) {
     return Math.max(1, Math.min(30, Math.trunc(Number(input.value) || 1)));
   }
@@ -328,51 +394,17 @@ export function createService(runtime) {
 
   async function exportPrintPDFCore() {
     if (runtime.state.batchRendering) return;
-    const queue = [];
-    if (runtime.view.get("includeCurrent").checked)
-      queue.push({
-        id: "current",
-        name: runtime.view.get("name").value || "Carta atual",
-        project: await runtime.services.collection.portable(),
-        copies: runtime.services.printing.copiesValue(
-          runtime.view.get("currentCopies"),
-        ),
-      });
-    for (const item of runtime.state.printRows)
-      if (item.check.checked)
-        queue.push({
-          id: item.record.id,
-          name: item.record.name,
-          project: item.record.project,
-          copies: runtime.services.printing.copiesValue(item.copies),
-        });
-    const expanded = queue.flatMap((item) =>
-      runtime.services.collection.cardsOf(item.project).map((card) => ({
-        ...item,
-        id: item.id + ":" + card.id,
-        name: card.label || card.project.values.name || item.name,
-        project: card.project,
-        copies: item.copies * (card.copies || 1),
-      })),
-    );
-    queue.splice(0, queue.length, ...expanded);
-    if (!queue.length) {
-      runtime.view.get("pdfStatus").textContent =
-        "Selecione ao menos uma carta.";
+    let plan = printPlan();
+    if (plan.error) {
+      runtime.view.get("pdfStatus").textContent = plan.error;
+      runtime.services.editor.message(plan.error, true);
       return;
     }
-    const count = queue.reduce((n, q) => n + q.copies, 0);
-    if (count > 120) {
-      runtime.view.get("pdfStatus").textContent =
-        "Exporte até 120 cartas por PDF. Divida em mais de um arquivo.";
-      return;
-    }
-    const mode = runtime.view.get("printSides").value;
-    if (mode !== "front" && queue.some((q) => !q.project.media.back)) {
-      runtime.view.get("pdfStatus").textContent =
-        "Envie um verso para todas as cartas selecionadas antes de imprimir versos.";
-      return;
-    }
+    const project = runtime.view.get("includeCurrent").checked
+      ? await runtime.services.collection.portable()
+      : runtime.services.projects.snapshot();
+    plan = printPlan(selectedItems(project));
+    const { queue, count, mode } = plan;
     if (runtime.state.setLoading) {
       runtime.view.get("pdfStatus").textContent =
         "Aguarde o símbolo da edição terminar de carregar.";
@@ -491,6 +523,8 @@ export function createService(runtime) {
     printablePng,
     paperGrid,
     slotsFor,
+    printPlan,
+    updatePrintSummary,
     cropCommands,
     jpegBytes,
     pdfDocument,

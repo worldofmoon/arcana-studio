@@ -12,6 +12,7 @@ export function createBrowserPlatform(browser = globalThis) {
     "URL",
     "indexedDB",
     "crypto",
+    "ResizeObserver",
   ];
   const platform = Object.fromEntries(
     names.map((name) => [name, browser[name]]),

@@ -15,27 +15,57 @@ export function createService(runtime) {
     };
   }
 
+  let draftWrite = null,
+    saveAgain = false;
   async function saveDraft() {
-    let db;
-    try {
-      db = await runtime.services.storage.database();
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction("projects", "readwrite");
-        tx.objectStore("projects").put(
-          runtime.services.collection.snapshot(),
-          "draft",
+    if (
+      runtime.state.batchRendering ||
+      runtime.state.editorLocks ||
+      runtime.state.collectionBusy
+    ) {
+      runtime.platform.clearTimeout(runtime.state.draftTimer);
+      runtime.state.draftTimer = runtime.platform.setTimeout(saveDraft, 1100);
+      return;
+    }
+    if (draftWrite) {
+      saveAgain = true;
+      return draftWrite;
+    }
+    const revision = runtime.state.editRevision,
+      savedAt = new Date().toISOString();
+    runtime.services.experience.saveStatus("saving", revision);
+    draftWrite = (async () => {
+      let db;
+      try {
+        const project = { ...runtime.services.collection.snapshot(), savedAt };
+        db = await runtime.services.storage.database();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction("projects", "readwrite");
+          tx.objectStore("projects").put(project, "draft");
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+          tx.onabort = () =>
+            reject(tx.error || new Error("Salvamento cancelado."));
+        });
+        runtime.services.experience.saveStatus("saved", revision, savedAt);
+      } catch (error) {
+        runtime.services.experience.saveStatus("error", revision);
+        runtime.services.editor.message(
+          "Não foi possível salvar o rascunho neste navegador. Baixe o projeto editável para guardar uma cópia.",
+          true,
         );
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-      });
-      db.close();
-    } catch (e) {
-      runtime.services.editor.message(
-        "O salvamento automático não está disponível. Use Baixar projeto para guardar seu trabalho.",
-        true,
-      );
+      } finally {
+        db?.close();
+      }
+    })();
+    try {
+      await draftWrite;
     } finally {
-      db?.close();
+      draftWrite = null;
+    }
+    if (saveAgain) {
+      saveAgain = false;
+      await saveDraft();
     }
   }
 

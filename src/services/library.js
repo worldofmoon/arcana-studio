@@ -148,6 +148,7 @@ export function createService(runtime) {
         try {
           if (!(await runtime.services.collection.open(record.project))) return;
           runtime.state.activeProjectId = record.id;
+          runtime.services.experience.libraryOpened(record);
           runtime.view.get("libraryDialog").close();
           runtime.services.editor.message("Projeto aberto: " + record.name);
         } catch (e) {
@@ -512,6 +513,7 @@ export function createService(runtime) {
       if (!(await runtime.state.fontsReady))
         throw new Error("Aguarde as fontes carregarem.");
       await runtime.services.bindings.ensureFrameAsset();
+      const saveRevision = runtime.state.editRevision;
       const project = await runtime.services.collection.portable(),
         name = (
           runtime.view.get("libraryName").value.trim() ||
@@ -534,6 +536,7 @@ export function createService(runtime) {
         thumbnail: runtime.services.projects.projectThumbnail(),
       };
       await runtime.services.storage.libraryWrite(record);
+      runtime.services.experience.librarySaved(saveRevision);
       runtime.state.activeProjectId = id;
       await runtime.services.library.refreshLibrary();
       runtime.view.get("libraryStatus").textContent =
