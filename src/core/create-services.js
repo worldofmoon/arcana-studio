@@ -1,0 +1,32 @@
+import { createService as create0 } from "../ui/editor.js";
+import { createService as create1 } from "../rendering/geometry.js";
+import { createService as create2 } from "../services/images.js";
+import { createService as create3 } from "../rendering/text.js";
+import { createService as create4 } from "../rendering/card.js";
+import { createService as create5 } from "../services/projects.js";
+import { createService as create6 } from "../infrastructure/storage-service.js";
+import { createService as create7 } from "../services/cards.js";
+import { createService as create8 } from "../services/print.js";
+import { createService as create9 } from "../services/fonts.js";
+import { createService as create10 } from "../ui/bindings.js";
+import { createService as create11 } from "../services/history.js";
+import { createService as create12 } from "../services/library.js";
+import { createService as create13 } from "../domain/project-schema.js";
+export function createServices(runtime) {
+  runtime.services = {};
+  runtime.services.editor = create0(runtime);
+  runtime.services.geometry = create1(runtime);
+  runtime.services.images = create2(runtime);
+  runtime.services.text = create3(runtime);
+  runtime.services.renderer = create4(runtime);
+  runtime.services.projects = create5(runtime);
+  runtime.services.storage = create6(runtime);
+  runtime.services.cards = create7(runtime);
+  runtime.services.printing = create8(runtime);
+  runtime.services.fonts = create9(runtime);
+  runtime.services.history = create11(runtime);
+  runtime.services.library = create12(runtime);
+  runtime.services.schema = create13(runtime);
+  runtime.services.bindings = create10(runtime);
+  return runtime.services;
+}

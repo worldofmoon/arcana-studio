@@ -30,3 +30,7 @@ O pacote publicado foi testado com seu carregador e os arquivos servidos pelo Gi
 ## Limites da revisão
 
 Não havia ferramenta de navegador de teste nesta sessão. Os testes de DOM/canvas não substituem a validação de cliques, rolagem, gestos e downloads em um Safari/iPhone real. Não foi feita impressão física; alinhamento e escala também dependem da configuração e das margens da impressora.
+
+## Atualização arquitetural
+
+O editor foi reorganizado em ES modules, CSS e recursos separados. Consulte [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) e [README.md](README.md) para os padrões, contratos e testes de regressão.

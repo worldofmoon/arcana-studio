@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "ArcanaTitle";
+  src: url(../assets/fonts/Beleren2016-Bold.ttf) format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "ArcanaClassic";
+  src: url(../assets/fonts/MagictheGathering.TTF) format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
