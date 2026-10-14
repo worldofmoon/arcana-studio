@@ -67,3 +67,5 @@ Os testes não substituem validação de gestos e downloads em Safari/iPhone rea
 ## Créditos
 
 Projeto independente, sem afiliação à Wizards of the Coast. Dados e símbolos de edições via Scryfall. Elementos de Magic, fontes e recursos de referência mantêm os direitos de seus respectivos criadores; veja os créditos na interface e em [assets/README.md](assets/README.md).
+
+Antes de publicar mudanças em JavaScript ou CSS, execute `npm run release`: o script versiona a entrada e todo o grafo de módulos para evitar misturar arquivos de versões antigas no cache do navegador.

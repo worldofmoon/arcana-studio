@@ -115,6 +115,36 @@ export function initializeControllers(runtime) {
       .get(id)
       .addEventListener("change", runtime.services.editor.changed);
   }
+  for (const field of [
+    "shiftX",
+    "shiftY",
+    "secondX",
+    "secondY",
+    "backX",
+    "backY",
+  ]) {
+    const number = runtime.view.get(field + "Number");
+    const position = (value) => {
+      if (runtime.state.editorLocks || runtime.state.batchRendering) return;
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return;
+      runtime.view.get(field).value = String(
+        Math.max(-100, Math.min(100, Math.round(parsed))),
+      );
+      runtime.services.editor.changed();
+    };
+    number.addEventListener("input", () => {
+      if (number.value !== "") position(number.value);
+    });
+    number.addEventListener("change", () => {
+      position(number.value);
+      number.value = runtime.view.get(field).value;
+    });
+    runtime.view.get(field + "Before").onclick = () =>
+      position(runtime.services.editor.num(field) + 5);
+    runtime.view.get(field + "After").onclick = () =>
+      position(runtime.services.editor.num(field) - 5);
+  }
   for (const id of ["name", "mana", "type", "rules", "flavor"])
     runtime.view
       .get(id)

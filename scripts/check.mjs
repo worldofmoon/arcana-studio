@@ -15,7 +15,8 @@ for (const file of modules) {
   execFileSync(process.execPath, ["--check", file]);
   const source = await readFile(file, "utf8");
   for (const match of source.matchAll(/(?:from\s+|import\s*)['"]([^'"]+)['"]/g))
-    if (match[1].startsWith(".")) await stat(resolve(dirname(file), match[1]));
+    if (match[1].startsWith("."))
+      await stat(resolve(dirname(file), match[1].split("?")[0]));
 }
 const html = await readFile("index.html", "utf8");
 if (/<style>|<script>(?!\s*<\/script>)/.test(html))

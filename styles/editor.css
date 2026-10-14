@@ -977,3 +977,24 @@ dialog canvas {
 .collection-history[hidden] {
   display: none;
 }
+
+.pan-controls {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.pan-controls button {
+  padding: 6px;
+  min-height: 44px;
+  font-size: 1.2rem;
+}
+.pan-controls input {
+  text-align: center;
+  min-width: 0;
+}
+input[type="range"] {
+  min-height: 44px;
+  touch-action: none;
+}

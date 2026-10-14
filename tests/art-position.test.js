@@ -106,3 +106,35 @@ test("dragging the preview follows the pointer at low zoom on either face and st
     assert.equal(nodes[x].value, before);
   }
 });
+
+test("direction buttons and numeric positions update every artwork axis and stay synchronized with the sliders", () => {
+  const r = facade.runtime;
+  for (const field of [
+    "shiftX",
+    "shiftY",
+    "secondX",
+    "secondY",
+    "backX",
+    "backY",
+  ]) {
+    nodes[field].value = "0";
+    nodes[field + "Before"].onclick();
+    assert.equal(nodes[field].value, "5");
+    assert.equal(nodes[field + "Number"].value, "5");
+    nodes[field + "After"].onclick();
+    assert.equal(nodes[field].value, "0");
+    nodes[field + "Number"].value = "-25";
+    nodes[field + "Number"].handlers.input();
+    assert.equal(nodes[field].value, "-25");
+    nodes[field + "Number"].value = "200";
+    nodes[field + "Number"].handlers.change();
+    assert.equal(nodes[field].value, "100");
+    assert.equal(nodes[field + "Number"].value, "100");
+    nodes[field].value = "-10";
+    nodes[field].handlers.input();
+    assert.equal(nodes[field + "Number"].value, "-10");
+  }
+  const project = r.services.projects.snapshot();
+  assert.equal(project.values.shiftX, "-10");
+  assert(!("shiftXNumber" in project.values));
+});

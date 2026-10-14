@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Arcana Studio · Criador de cartas</title>
-    <link rel="stylesheet" href="styles/fonts.css" />
-    <link rel="stylesheet" href="styles/editor.css" />
+    <link rel="stylesheet" href="styles/fonts.css?v=b3c18be5cfcc" />
+    <link rel="stylesheet" href="styles/editor.css?v=b3c18be5cfcc" />
   </head>
   <body>
     <div class="wrap">
@@ -729,6 +729,32 @@
                     max="100"
                     value="0"
                   />
+                  <div class="pan-controls">
+                    <button
+                      id="shiftXBefore"
+                      type="button"
+                      aria-label="Mover arte para esquerda · horizontal"
+                      aria-controls="canvas"
+                    >
+                      ←</button
+                    ><input
+                      id="shiftXNumber"
+                      type="number"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value="0"
+                      inputmode="numeric"
+                      aria-label="Posição horizontal"
+                    /><button
+                      id="shiftXAfter"
+                      type="button"
+                      aria-label="Mover arte para direita · horizontal"
+                      aria-controls="canvas"
+                    >
+                      →
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label for="shiftY"
@@ -740,6 +766,32 @@
                     max="100"
                     value="0"
                   />
+                  <div class="pan-controls">
+                    <button
+                      id="shiftYBefore"
+                      type="button"
+                      aria-label="Mover arte para cima · vertical"
+                      aria-controls="canvas"
+                    >
+                      ↑</button
+                    ><input
+                      id="shiftYNumber"
+                      type="number"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value="0"
+                      inputmode="numeric"
+                      aria-label="Posição vertical"
+                    /><button
+                      id="shiftYAfter"
+                      type="button"
+                      aria-label="Mover arte para baixo · vertical"
+                      aria-controls="canvas"
+                    >
+                      ↓
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label for="artOpacity"
@@ -799,7 +851,34 @@
                   max="100"
                   step="1"
                   value="0"
-                /><label for="secondY"
+                />
+                <div class="pan-controls">
+                  <button
+                    id="secondXBefore"
+                    type="button"
+                    aria-label="Mover arte para esquerda · horizontal da segunda arte"
+                    aria-controls="canvas"
+                  >
+                    ←</button
+                  ><input
+                    id="secondXNumber"
+                    type="number"
+                    min="-100"
+                    max="100"
+                    step="1"
+                    value="0"
+                    inputmode="numeric"
+                    aria-label="Posição horizontal da segunda arte"
+                  /><button
+                    id="secondXAfter"
+                    type="button"
+                    aria-label="Mover arte para direita · horizontal da segunda arte"
+                    aria-controls="canvas"
+                  >
+                    →
+                  </button>
+                </div>
+                <label for="secondY"
                   >Vertical <span class="value" id="v-secondY"></span></label
                 ><input
                   id="secondY"
@@ -808,7 +887,34 @@
                   max="100"
                   step="1"
                   value="0"
-                /><button id="removeSecondary">Remover segunda arte</button>
+                />
+                <div class="pan-controls">
+                  <button
+                    id="secondYBefore"
+                    type="button"
+                    aria-label="Mover arte para cima · vertical da segunda arte"
+                    aria-controls="canvas"
+                  >
+                    ↑</button
+                  ><input
+                    id="secondYNumber"
+                    type="number"
+                    min="-100"
+                    max="100"
+                    step="1"
+                    value="0"
+                    inputmode="numeric"
+                    aria-label="Posição vertical da segunda arte"
+                  /><button
+                    id="secondYAfter"
+                    type="button"
+                    aria-label="Mover arte para baixo · vertical da segunda arte"
+                    aria-controls="canvas"
+                  >
+                    ↓
+                  </button>
+                </div>
+                <button id="removeSecondary">Remover segunda arte</button>
                 <p class="hint">
                   Na carta dividida, cada metade tem sua própria ilustração. Se
                   não enviar a segunda, ela usa a arte principal.
@@ -1013,6 +1119,32 @@
                     max="100"
                     value="0"
                   />
+                  <div class="pan-controls">
+                    <button
+                      id="backXBefore"
+                      type="button"
+                      aria-label="Mover arte para esquerda · horizontal do verso"
+                      aria-controls="canvas"
+                    >
+                      ←</button
+                    ><input
+                      id="backXNumber"
+                      type="number"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value="0"
+                      inputmode="numeric"
+                      aria-label="Posição horizontal do verso"
+                    /><button
+                      id="backXAfter"
+                      type="button"
+                      aria-label="Mover arte para direita · horizontal do verso"
+                      aria-controls="canvas"
+                    >
+                      →
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label for="backY"
@@ -1024,6 +1156,32 @@
                     max="100"
                     value="0"
                   />
+                  <div class="pan-controls">
+                    <button
+                      id="backYBefore"
+                      type="button"
+                      aria-label="Mover arte para cima · vertical do verso"
+                      aria-controls="canvas"
+                    >
+                      ↑</button
+                    ><input
+                      id="backYNumber"
+                      type="number"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value="0"
+                      inputmode="numeric"
+                      aria-label="Posição vertical do verso"
+                    /><button
+                      id="backYAfter"
+                      type="button"
+                      aria-label="Mover arte para baixo · vertical do verso"
+                      aria-controls="canvas"
+                    >
+                      ↓
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="row">
@@ -1365,6 +1523,6 @@
       </p>
     </dialog>
 
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js?v=b3c18be5cfcc"></script>
   </body>
 </html>

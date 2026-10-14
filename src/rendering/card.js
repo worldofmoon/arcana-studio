@@ -1,4 +1,4 @@
-import { createLayerScene } from "./scene.js";
+import { createLayerScene } from "./scene.js?v=b3c18be5cfcc";
 export function createService(runtime) {
   function setSymbolDraw(c, typeY) {
     if (!runtime.state.media.symbol || !runtime.view.get("showSymbol").checked)
@@ -656,6 +656,18 @@ export function createService(runtime) {
         output.textContent =
           runtime.view.get(id).value +
           (id.includes("Rotation") || id === "rotation" ? "°" : "");
+    }
+    for (const field of [
+      "shiftX",
+      "shiftY",
+      "secondX",
+      "secondY",
+      "backX",
+      "backY",
+    ]) {
+      const number = runtime.view.get(field + "Number");
+      if (runtime.platform.document.activeElement !== number)
+        number.value = runtime.view.get(field).value;
     }
     if (runtime.view.get("dialog").open) {
       const c = runtime.view.get("expanded");
