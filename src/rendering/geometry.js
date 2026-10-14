@@ -83,6 +83,25 @@ export function createService(runtime) {
     };
   }
 
+  function artTransform(img, box, back = false) {
+    const rotation =
+        (runtime.services.editor.num(back ? "backRotation" : "rotation") *
+          Math.PI) /
+        180,
+      cos = Math.abs(Math.cos(rotation)),
+      sin = Math.abs(Math.sin(rotation));
+    const requiredW = box.w * cos + box.h * sin,
+      requiredH = box.w * sin + box.h * cos;
+    const zoom = runtime.services.editor.num(back ? "backZoom" : "zoom"),
+      scale = Math.max(requiredW / img.width, requiredH / img.height) * zoom,
+      iw = img.width * scale,
+      ih = img.height * scale;
+    // Keep a full panel of travel even for fitted or reduced images.
+    const rangeX = Math.max(box.w, iw * cos + ih * sin - box.w),
+      rangeY = Math.max(box.h, iw * sin + ih * cos - box.h);
+    return { rotation, iw, ih, rangeX, rangeY };
+  }
+
   function artDraw(c, img, box, back = false) {
     c.save();
     runtime.services.geometry.rounded(c, box.x, box.y, box.w, box.h, 18);
@@ -90,26 +109,16 @@ export function createService(runtime) {
     c.fillStyle = runtime.view.get("artBg").value;
     c.fillRect(box.x, box.y, box.w, box.h);
     if (img) {
-      const rotation =
-          (runtime.services.editor.num(back ? "backRotation" : "rotation") *
-            Math.PI) /
-          180,
-        cos = Math.abs(Math.cos(rotation)),
-        sin = Math.abs(Math.sin(rotation)),
-        requiredW = box.w * cos + box.h * sin,
-        requiredH = box.w * sin + box.h * cos;
-      const zoom = runtime.services.editor.num(back ? "backZoom" : "zoom"),
-        scale = Math.max(requiredW / img.width, requiredH / img.height) * zoom,
-        iw = img.width * scale,
-        ih = img.height * scale;
+      const { rotation, iw, ih, rangeX, rangeY } =
+        runtime.services.geometry.artTransform(img, box, back);
       const sx = runtime.services.editor.num(back ? "backX" : "shiftX") / 100,
         sy = runtime.services.editor.num(back ? "backY" : "shiftY") / 100;
-      const dx = (-sx * Math.max(0, iw - requiredW)) / 2,
-        dy = (-sy * Math.max(0, ih - requiredH)) / 2;
-      c.translate(box.x + box.w / 2, box.y + box.h / 2);
+      const dx = (-sx * rangeX) / 2,
+        dy = (-sy * rangeY) / 2;
+      c.translate(box.x + box.w / 2 + dx, box.y + box.h / 2 + dy);
       c.rotate(rotation);
       c.globalAlpha *= back ? 1 : runtime.services.editor.num("artOpacity");
-      c.drawImage(img, dx - iw / 2, dy - ih / 2, iw, ih);
+      c.drawImage(img, -iw / 2, -ih / 2, iw, ih);
     }
     c.restore();
   }
@@ -421,6 +430,7 @@ export function createService(runtime) {
     palette,
     layout,
     artDraw,
+    artTransform,
     paperTexture,
     ivoryPlate,
     plate,

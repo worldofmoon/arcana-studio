@@ -154,10 +154,26 @@ export function initializeControllers(runtime) {
       ? "none"
       : "pan-y";
   runtime.view.canvas.addEventListener("pointerdown", (e) => {
+    if (runtime.state.editorLocks || runtime.state.batchRendering) {
+      runtime.state.pointer = null;
+      e.preventDefault();
+      return;
+    }
     if (runtime.state.activeTab !== "art" && runtime.state.activeTab !== "back")
       return;
     e.preventDefault();
+    const back = runtime.state.activeTab === "back",
+      box = back
+        ? { x: 33, y: 33, w: 1194, h: 1694 }
+        : runtime.services.renderer.specialPlan().art,
+      image = runtime.state.media[back ? "back" : "art"];
+    const pan = image
+      ? runtime.services.geometry.artTransform(image, box, back)
+      : { rangeX: box.w, rangeY: box.h };
     runtime.state.pointer = {
+      rangeX: pan.rangeX,
+      rangeY: pan.rangeY,
+      split: !back && runtime.view.get("cardLayout").value === "split",
       x: e.clientX,
       y: e.clientY,
       b: runtime.state.activeTab === "back",
@@ -174,12 +190,17 @@ export function initializeControllers(runtime) {
   runtime.view.canvas.addEventListener("pointermove", (e) => {
     if (!runtime.state.pointer) return;
     const rect = runtime.view.canvas.getBoundingClientRect(),
-      x =
-        runtime.state.pointer.sx -
-        ((e.clientX - runtime.state.pointer.x) / rect.width) * 200,
-      y =
-        runtime.state.pointer.sy -
-        ((e.clientY - runtime.state.pointer.y) / rect.height) * 200;
+      pointer = runtime.state.pointer;
+    let dx = ((e.clientX - pointer.x) * runtime.view.canvas.width) / rect.width,
+      dy = ((e.clientY - pointer.y) * runtime.view.canvas.height) / rect.height;
+    if (pointer.split) {
+      const localX = -dy / (850 / 1260),
+        localY = dx / (1210 / 1760);
+      dx = localX;
+      dy = localY;
+    }
+    const x = pointer.sx - (dx / pointer.rangeX) * 200,
+      y = pointer.sy - (dy / pointer.rangeY) * 200;
     runtime.view.get(runtime.state.pointer.b ? "backX" : "shiftX").value =
       Math.max(-100, Math.min(100, x));
     runtime.view.get(runtime.state.pointer.b ? "backY" : "shiftY").value =
@@ -468,12 +489,6 @@ export function initializeControllers(runtime) {
   runtime.view.get("export").onclick = runtime.services.bindings.exportHandler;
   runtime.view.get("restoreDraft").onclick =
     runtime.services.bindings.restoreDraftHandler;
-  runtime.view.canvas.addEventListener("pointerdown", (e) => {
-    if (runtime.state.editorLocks || runtime.state.batchRendering) {
-      runtime.state.pointer = null;
-      e.preventDefault();
-    }
-  });
   for (const [button, kind, input] of [
     ["removeArt", "art", "artFile"],
     ["removeBack", "back", "backFile"],
