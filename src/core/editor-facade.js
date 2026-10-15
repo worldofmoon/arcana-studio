@@ -1,12 +1,12 @@
-import { AssetProxy } from "../infrastructure/asset-proxy.js?v=cfde92433bf3";
-import { IndexedDbAdapter } from "../infrastructure/indexeddb-adapter.js?v=cfde92433bf3";
-import { ScryfallAdapter } from "../infrastructure/scryfall-adapter.js?v=cfde92433bf3";
-import * as config from "../domain/config.js?v=cfde92433bf3";
-import { initializeState } from "./state.js?v=cfde92433bf3";
-import { createServices } from "./create-services.js?v=cfde92433bf3";
-import { initializeControllers } from "../ui/initialize.js?v=cfde92433bf3";
-import { DomView } from "../ui/dom-view.js?v=cfde92433bf3";
-import { SERVICE_MAP } from "./service-map.js?v=cfde92433bf3";
+import { AssetProxy } from "../infrastructure/asset-proxy.js?v=0560ed3bb7ba";
+import { IndexedDbAdapter } from "../infrastructure/indexeddb-adapter.js?v=0560ed3bb7ba";
+import { ScryfallAdapter } from "../infrastructure/scryfall-adapter.js?v=0560ed3bb7ba";
+import * as config from "../domain/config.js?v=0560ed3bb7ba";
+import { initializeState } from "./state.js?v=0560ed3bb7ba";
+import { createServices } from "./create-services.js?v=0560ed3bb7ba";
+import { initializeControllers } from "../ui/initialize.js?v=0560ed3bb7ba";
+import { DomView } from "../ui/dom-view.js?v=0560ed3bb7ba";
+import { SERVICE_MAP } from "./service-map.js?v=0560ed3bb7ba";
 
 /** Facade: coordinates editor subsystems without exposing globals to the page. */
 export class EditorFacade {

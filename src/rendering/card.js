@@ -1,4 +1,4 @@
-import { createLayerScene } from "./scene.js?v=cfde92433bf3";
+import { createLayerScene } from "./scene.js?v=0560ed3bb7ba";
 export function createService(runtime) {
   function setSymbolDraw(c, typeY) {
     if (!runtime.state.media.symbol || !runtime.view.get("showSymbol").checked)
@@ -403,8 +403,8 @@ export function createService(runtime) {
         runtime.services.text.fitTitle(
           c,
           text,
-          (1260 - w) / 2,
-          p.title.y,
+          (1260 - w) / 2 + runtime.services.editor.num("nameX") * 12.6,
+          p.title.y + runtime.services.editor.num("nameY") * 17.6,
           950,
           58,
         );
@@ -412,16 +412,16 @@ export function createService(runtime) {
         runtime.services.text.fitTitle(
           c,
           runtime.services.renderer.faceValue("name", second) || "Sua carta",
-          p.title.x,
-          p.title.y,
+          p.title.x + runtime.services.editor.num("nameX") * 12.6,
+          p.title.y + runtime.services.editor.num("nameY") * 17.6,
           p.title.w - mw,
           58,
         );
       runtime.services.text.fitTitle(
         c,
         runtime.services.renderer.faceValue("type", second),
-        p.type.x,
-        p.type.y,
+        p.type.x + runtime.services.editor.num("typeX") * 12.6,
+        p.type.y + runtime.services.editor.num("typeY") * 17.6,
         p.type.w - (runtime.view.get("showSymbol").checked ? 110 : 0),
         43,
         "type",

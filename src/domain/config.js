@@ -1,4 +1,8 @@
 export const advancedFields = [
+  "nameX",
+  "nameY",
+  "typeX",
+  "typeY",
   "cardLayout",
   "dualColor",
   "colorLeft",

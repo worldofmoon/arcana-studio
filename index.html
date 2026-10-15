@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Arcana Studio · Criador de cartas</title>
-    <link rel="stylesheet" href="styles/fonts.css?v=cfde92433bf3" />
-    <link rel="stylesheet" href="styles/editor.css?v=cfde92433bf3" />
+    <link rel="stylesheet" href="styles/fonts.css?v=0560ed3bb7ba" />
+    <link rel="stylesheet" href="styles/editor.css?v=0560ed3bb7ba" />
   </head>
   <body>
     <div class="wrap">
@@ -470,6 +470,29 @@
                   ><input id="type" type="text" value="Artefato" />
                 </div>
               </div>
+              <details>
+                <summary>Posição do nome e do tipo</summary>
+                <p class="hint">Ajuste cada texto. Zero mantém a posição original.</p>
+                <div class="grid">
+                  <div>
+                    <label for="nameX">Nome · horizontal <span id="v-nameX" class="value"></span></label>
+                    <input id="nameX" type="range" min="-100" max="100" step="1" value="0" />
+                  </div>
+                  <div>
+                    <label for="nameY">Nome · vertical <span id="v-nameY" class="value"></span></label>
+                    <input id="nameY" type="range" min="-100" max="100" step="1" value="0" />
+                  </div>
+                  <div>
+                    <label for="typeX">Tipo · horizontal <span id="v-typeX" class="value"></span></label>
+                    <input id="typeX" type="range" min="-100" max="100" step="1" value="0" />
+                  </div>
+                  <div>
+                    <label for="typeY">Tipo · vertical <span id="v-typeY" class="value"></span></label>
+                    <input id="typeY" type="range" min="-100" max="100" step="1" value="0" />
+                  </div>
+                </div>
+                <button id="resetTextPosition" type="button">Restaurar posições</button>
+              </details>
               <label>Inserir símbolo no campo selecionado</label>
               <div id="manaButtons" class="mana-buttons"></div>
               <label for="rules">Habilidades</label
@@ -1523,6 +1546,6 @@
       </p>
     </dialog>
 
-    <script type="module" src="src/main.js?v=cfde92433bf3"></script>
+    <script type="module" src="src/main.js?v=0560ed3bb7ba"></script>
   </body>
 </html>
