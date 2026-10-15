@@ -1,4 +1,4 @@
-import { createLayerScene } from "./scene.js?v=e180db8dc555";
+import { createLayerScene } from "./scene.js?v=cfde92433bf3";
 export function createService(runtime) {
   function setSymbolDraw(c, typeY) {
     if (!runtime.state.media.symbol || !runtime.view.get("showSymbol").checked)
