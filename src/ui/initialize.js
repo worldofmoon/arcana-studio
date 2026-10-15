@@ -145,6 +145,11 @@ export function initializeControllers(runtime) {
     runtime.view.get(field + "After").onclick = () =>
       position(runtime.services.editor.num(field) - 5);
   }
+  runtime.view.get("resetTextPosition").onclick = () => {
+    for (const field of ["nameX", "nameY", "typeX", "typeY"])
+      runtime.view.get(field).value = "0";
+    runtime.services.editor.changed();
+  };
   for (const id of ["name", "mana", "type", "rules", "flavor"])
     runtime.view
       .get(id)
