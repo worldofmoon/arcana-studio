@@ -1,6 +1,6 @@
-import { createBrowserPlatform } from "./infrastructure/browser-platform.js?v=b3c18be5cfcc";
-import { loadCatalog } from "./infrastructure/asset-proxy.js?v=b3c18be5cfcc";
-import { EditorFacade } from "./core/editor-facade.js?v=b3c18be5cfcc";
+import { createBrowserPlatform } from "./infrastructure/browser-platform.js?v=e180db8dc555";
+import { loadCatalog } from "./infrastructure/asset-proxy.js?v=e180db8dc555";
+import { EditorFacade } from "./core/editor-facade.js?v=e180db8dc555";
 
 const platform = createBrowserPlatform();
 const status = platform.document.getElementById("appStatus");
