@@ -150,11 +150,19 @@ export function createService(runtime) {
     }
     runtime.view.get("searchStatus").textContent = "Buscando…";
     try {
-      const safe = term.replace(/["\\]/g, " "),
+      const tokenSearch = /^(?:tokens?|fichas?)\s+|\s+(?:tokens?|fichas?)$/i.test(term),
+        name = tokenSearch
+          ? term
+              .replace(/^(?:tokens?|fichas?)\s+|\s+(?:tokens?|fichas?)$/gi, "")
+              .trim()
+          : term,
+        safe = name.replace(/["\\]/g, " "),
         url =
           "https://api.scryfall.com/cards/search?" +
           new URLSearchParams({
-            q: 'name:"' + safe + '" (lang:en or lang:pt)',
+            q:
+              (tokenSearch ? "t:token " : "") +
+              'name:"' + safe + '" (lang:en or lang:pt)',
             include_extras: "true",
             include_multilingual: "true",
             unique: "prints",
