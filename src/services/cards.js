@@ -139,6 +139,7 @@ export function createService(runtime) {
     runtime.state.searchAbort?.abort();
     runtime.state.searchAbort = new AbortController();
     runtime.view.get("results").replaceChildren();
+    runtime.view.get("results").hidden = false;
     runtime.view.get("more").hidden = true;
     runtime.state.resultCards = [];
     runtime.state.shown = 0;
@@ -222,6 +223,13 @@ export function createService(runtime) {
     if (!runtime.state.collection) runtime.state.activeProjectId = null;
     runtime.state.selectedCard = card;
     runtime.state.faceIndex = index;
+    ++runtime.state.searchVersion;
+    runtime.platform.clearTimeout(runtime.state.searchTimer);
+    runtime.state.searchAbort?.abort();
+    runtime.view.get("results").hidden = true;
+    runtime.view.get("more").hidden = true;
+    runtime.view.get("searchStatus").textContent =
+      (card.printed_name || card.name) + " selecionada. Busque para trocar a carta.";
     for (const button of runtime.view.get("results").children)
       button.setAttribute(
         "aria-pressed",

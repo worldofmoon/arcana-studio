@@ -2,9 +2,9 @@ import {
   OperationHistory,
   cloneValue,
   projectFingerprint,
-} from "../domain/operation-history.js?v=e180db8dc555";
-import { renderCollection } from "../ui/collection-view.js?v=e180db8dc555";
-import { zipArchive } from "../domain/zip.js?v=e180db8dc555";
+} from "../domain/operation-history.js?v=cfde92433bf3";
+import { renderCollection } from "../ui/collection-view.js?v=cfde92433bf3";
+import { zipArchive } from "../domain/zip.js?v=cfde92433bf3";
 const MAX_CARDS = 100;
 const BACK_FIELDS = ["backZoom", "backRotation", "backX", "backY"];
 const FRAME_FIELDS = [
